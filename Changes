@@ -1,4 +1,5 @@
 Revision history for Perl extension Path::Router
 
 0.01
-    - copied Ruby on Rails Router
+    - copied Ruby on Rails Router, but make it 
+      ... better, stronger, faster

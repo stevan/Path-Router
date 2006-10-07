@@ -13,6 +13,7 @@ BEGIN {
 
 my $router = Path::Router->new;
 isa_ok($router, 'Path::Router');
+isa_ok($router, 'Moose::Object');
 
 can_ok($router, 'add_route');
 can_ok($router, 'match');
@@ -20,11 +21,10 @@ can_ok($router, 'uri_for');
 
 # create some routes
 
-$router->add_route('blog' => {
+$router->add_route('blog/' => {
     controller => 'blog',
     action     => 'index',
 });
-
 $router->add_route('blog/:year/:month/:day' => {
     controller => 'blog',
     action     => 'show_date',
@@ -32,18 +32,19 @@ $router->add_route('blog/:year/:month/:day' => {
     month      => qr/\d\d?/,
     day        => qr/\d\d?/,        
 });
-
-$router->add_route('blog/:action/:id' => {
-    controller => 'blog',
-    id         => qr/\d+/
+$router->add_route(':controller/match/:id' => {
+    action => 'matching'
 });
-
-# add a catch all 
-$router->add_route(':controller/:action/:id');
+$router->add_route('blog/:controller/:action/:id' => {
+    base => 'blog',
+});
+$router->add_route(':controller/:action/:id' => {
+    id => qr/\d+/
+});
 
 # create some tests
 
-my %passing_tests = (
+my %tests = (
     # :controller/:action/:id
     'blog/edit/5' => {
         controller => 'blog',
@@ -55,6 +56,18 @@ my %passing_tests = (
         action     => 'show',
         id         => 123
     }, 
+    # :controller/match/:id   
+    'baz/match/bar' => {
+        controller => 'baz',
+        action     => 'matching',
+        id         => 'bar'
+    }, 
+    # :controller/match/:id    
+    'blog/match/3' => {
+        controller => 'blog',
+        action     => 'matching',
+        id         => 3        
+    },
     # blog/:year/:month/:day
     'blog/2006/20/5' => {
         controller => 'blog',
@@ -76,29 +89,36 @@ my %passing_tests = (
         controller => 'blog',
         action     => 'index',
     },  
-    # blog/:action/:id
-    'blog/delete/5' => {
-        controller => 'blog',
+    # blog/:controller/:action/:id
+    'blog/article/delete/5' => {
+        base       => 'blog',
+        controller => 'article',
         action     => 'delete',
         id         => 5,
-    },        
+    }, 
+    'blog/index/build/2005106' => {
+        base       => 'blog',
+        controller => 'index',
+        action     => 'build',
+        id         => 2005106,
+    },         
 );
 
 # test the roundtrip
 
-foreach my $path (keys %passing_tests) {
+foreach my $path (keys %tests) {
     # the path generated from the hash
     # is the same as the path supplied
     is(
         $path, 
-        $router->uri_for(%{$passing_tests{$path}}), 
+        $router->uri_for(%{$tests{$path}}), 
         '... round-tripping the light fantasitc'
     );
     # the path supplied produces the
     # same match as the hash supplied 
     is_deeply(
         $router->match($path),
-        $passing_tests{$path},
+        $tests{$path},
         '... dont call it a comeback, I been here for years'
     );    
 }

@@ -71,13 +71,11 @@ Path::Router::Route - An object to represent a route
 
 =head1 AUTHORS
 
-Stevan Little E<lt>stevan@iinteractive.comE<gt>
+Stevan Little E<lt>stevan.little@gmail.comE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright 2006 by Infinity Interactive, Inc.
-
-L<http://www.iinteractive.com>
+Copyright 2006 by Stevan Little
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.

@@ -1,0 +1,10 @@
+-----------------------------------------------------------
+-- TODO
+-----------------------------------------------------------
+
+- explore the idea of defaults
+- possible seperate validation in some way
+- explore the idea of optional
+_ explore the idea of "slurpy"
+
+read : http://caboo.se/doc/classes/ActionController/Routing.html
