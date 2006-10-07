@@ -43,18 +43,12 @@ $router->add_route(':controller/:action/:id');
 
 # create some tests
 
-my %passing_tests = (
-    # :controller/:action/:id
-    'blog/edit/5' => {
+my %passing_tests = ( 
+    # blog
+    'blog' => {
         controller => 'blog',
-        action     => 'edit',
-        id         => 5
-    },
-    'blog/show/123' => {
-        controller => 'blog',
-        action     => 'show',
-        id         => 123
-    }, 
+        action     => 'index',
+    },    
     # blog/:year/:month/:day
     'blog/2006/20/5' => {
         controller => 'blog',
@@ -71,12 +65,22 @@ my %passing_tests = (
         month      => 1,
         day        => 50,        
     },    
-    # blog/
-    'blog' => {
-        controller => 'blog',
-        action     => 'index',
-    },  
     # blog/:action/:id
+    'blog/edit/5' => {
+        controller => 'blog',
+        action     => 'edit',
+        id         => 5
+    },
+    'blog/show/123' => {
+        controller => 'blog',
+        action     => 'show',
+        id         => 123
+    }, 
+    'blog/some_crazy_long_winded_action_name/12356789101112131151' => {
+        controller => 'blog',
+        action     => 'some_crazy_long_winded_action_name',
+        id         => '12356789101112131151',
+    },    
     'blog/delete/5' => {
         controller => 'blog',
         action     => 'delete',

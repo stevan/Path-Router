@@ -188,7 +188,7 @@ Path::Router - A tool for deconstructing paths
 
   my $router = Path::Router->new;
   
-  $router->add_route('blog/' => {
+  $router->add_route('blog' => {
       controller => 'blog',
       action     => 'index',
   });
@@ -203,11 +203,12 @@ Path::Router - A tool for deconstructing paths
   
   $router->add_route('blog/:action/:id' => {
       controller => 'blog',
+      id         => qr/\d+/,
   });
   
   # ... in your dispatcher
   
-  my $deconstructed_path_hash = $router->match($path_to_deconstruct);
+  my $deconstructed_path_hash = $router->match('/blog/edit/15);
   
   # ... in your code
   
