@@ -22,6 +22,32 @@ $router->add_route(':controller/:id/:action' => {
     id     => qr/\d+/,
 });
 
+# THIS:
+
+# /people/         (:action => 'index')
+# /people/new
+# /people/create
+# /people/56/      (:action => 'show' by default)
+# /people/56/edit
+# /people/56/remove
+# /people/56/update
+
+# SHOULD BE POSSIBLE WITH THIS:
+ 
+# $router->add_route(':controller/?:action' => {
+#     action => 'index'
+# });
+# 
+# $router->add_route(':controller/:id/?:action' => {
+#     action => 'show',
+#     id     => qr/\d+/,
+# });
+
+# IT CAN BE REVERSABLE IF WE CHECK 
+# DEFAULT VALUES IN THE REVERSE FUNCTION
+# AND IF CURRENT VALUE MATCHES THE DEFAULT
+# WE CAN OMIT IT  
+
 my %passing_tests = (
 	'people/new' => {
 		controller => 'people',
