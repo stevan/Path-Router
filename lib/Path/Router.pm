@@ -11,8 +11,9 @@ use Path::Router::Route;
 use constant DEBUG => 0;
 
 has 'routes' => (
-    is  => 'ro', 
-    isa => 'ArrayRef'
+    is      => 'ro', 
+    isa     => 'ArrayRef',
+    default => sub { [] },
 );
 
 sub add_route {

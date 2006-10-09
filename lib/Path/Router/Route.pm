@@ -14,6 +14,7 @@ has 'path'  => (
 has 'defaults' => (
     is        => 'ro', 
     isa       => 'HashRef', 
+    default   => sub { {} },
     predicate => {
         'has_defaults' => sub {
             scalar keys %{(shift)->{defaults}}
@@ -22,8 +23,9 @@ has 'defaults' => (
 );
 
 has 'validations' => (
-    is  => 'ro', 
-    isa => 'HashRef', 
+    is        => 'ro', 
+    isa       => 'HashRef', 
+    default   => sub { {} },
     predicate => {
         'has_validations' => sub {
             scalar keys %{(shift)->{validations}}
