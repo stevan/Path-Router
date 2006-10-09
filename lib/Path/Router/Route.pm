@@ -11,6 +11,21 @@ has 'path'  => (
     required => 1
 );
 
+has 'defaults' => (
+    is        => 'ro', 
+    isa       => 'HashRef', 
+    predicate => {
+        'has_defaults' => sub {
+            scalar keys %{(shift)->{defaults}}
+        }
+    }
+);
+
+has 'validations' => (
+    is  => 'ro', 
+    isa => 'HashRef', 
+);
+
 has 'components' => (
     is      => 'ro', 
     isa     => 'ArrayRef',
@@ -25,15 +40,48 @@ has 'length' => (
     default => sub { scalar @{(shift)->components} }
 );
 
-has 'guide' => (
-    is        => 'ro', 
-    isa       => 'HashRef',
-    predicate => {
-        'has_guide' => sub {
-            scalar keys %{(shift)->guide}
-        }
+# misc
+
+sub create_default_mapping {
+    my $self = shift;
+    +{ %{$self->defaults} }
+}
+
+sub has_validation_for {
+    my ($self, $name) = @_;
+    $self->validations->{$name};
+}
+
+# component checking
+
+sub is_component_optional {
+    my ($self, $component) = @_; 
+    $component =~ /^\?/;    
+}
+
+sub is_component_variable {
+    my ($self, $component) = @_; 
+    my $name;
+    if ($self->is_component_optional($component)) {
+        ($name) = ($component =~ /^\?\:(.*)$/);        
     }
-);
+    else {
+        ($name) = ($component =~ /^\:(.*)$/);        
+    }
+    return $name;
+}
+
+# various types of lenths we need
+
+sub length_without_optionals {
+    my $self = shift;
+    scalar grep { !$self->is_component_optional($_) } @{$self->components}
+}
+
+sub length_with_defaults_and_validations {
+    my $self = shift;
+    (scalar keys %{$self->defaults}) + (scalar keys %{$self->validations})
+}
 
 no Moose; 1
 
@@ -61,9 +109,23 @@ Path::Router::Route - An object to represent a route
 
 =item B<length>
 
-=item B<guide>
+=item B<defaults>
 
-=item B<has_guide>
+=item B<has_defaults>
+
+=item B<validations>
+
+=item B<create_default_mapping>
+
+=item B<has_validation_for>
+
+=item B<is_component_optional>
+
+=item B<is_component_variable>
+
+=item B<length_with_defaults_and_validations>
+
+=item B<length_without_optionals>
 
 =item B<meta>
 

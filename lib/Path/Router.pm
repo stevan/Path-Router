@@ -15,12 +15,9 @@ has 'routes' => (
 );
 
 sub add_route {
-    my ($self, $path, $guide) = @_;
+    my ($self, $path, %options) = @_;
     
-    push @{$self->routes} => Path::Router::Route->new(
-        path  => $path,
-        guide => $guide,
-    );
+    push @{$self->routes} => Path::Router::Route->new(path  => $path, %options);
 }
 
 sub match {
@@ -30,59 +27,69 @@ sub match {
     
     foreach my $route (@{$self->routes}) {
         my $mapping;
+        
         eval {           
             
-            warn "> Attempting to match " . $route->path . " to (" . (join " / " => @parts) . ")"
-                if DEBUG;
+            warn "> Attempting to match " . $route->path . " to (" . (join " / " => @parts) . ")" if DEBUG;
+            
+            #warn "parts: " . scalar @parts;
+            #warn "route w/out optionals: " . $route->length_without_optionals;
+            #warn join ", " => @{$route->components};
             
             # they must be the same length
-            (scalar @parts == $route->length) || die "LENGTHS DID NOT MATCH\n";
+            (
+                scalar @parts == $route->length ||
+                scalar @parts == $route->length_without_optionals
+            ) || die "LENGTHS DID NOT MATCH\n";
                 
-            warn "\t... They are the same length"
-                if DEBUG;
+            warn "\t... They are the same length" if DEBUG;
         
             my @components = @{$route->components};
             
-            if ($route->guide) {
-                warn "\t... " . $route->path . " has a guide"
-                    if DEBUG;
-                $mapping = { %{$route->guide} };
+            if ($route->has_defaults) {
+                warn "\t... " . $route->path . " has a guide" if DEBUG;
+                $mapping = $route->create_default_mapping;
             }
         
             foreach my $i (0 .. $#components) {
+                
+                if (!defined $parts[$i] && $route->is_component_optional($components[$i])) {
+                    next;
+                }
+                
                 # if it is a variable (starts with a colon)
-                if ($components[$i] =~ /^\:(.*)$/) {
-                    my $name = $1;
-                    warn "\t\t... mapped " . $components[$i] . " to " . $parts[$i]
-                        if DEBUG;
-                    if (exists $mapping->{$name}) {
-                        my $regexp = $mapping->{$name};
-                        warn "\t\t\t... checking validation for $name against $regexp and " . $parts[$i]
-                            if DEBUG;                            
+                if (my $name = $route->is_component_variable($components[$i])) {
+                    
+                    warn "\t\t... mapped " . $components[$i] . " to " . $parts[$i] if DEBUG;
+                    
+                    if (my $regexp = $route->has_validation_for($name)) {
+                        
+                        warn "\t\t\t... checking validation for $name against $regexp and " . $parts[$i] if DEBUG;                            
+                        
                         ($parts[$i] =~ /^$regexp$/) || die "VALIDATION DID NOT PASS\n";
-                        warn "\t\t\t\t... validation passed for $name with " . $parts[$i]
-                            if DEBUG;
+                        
+                        warn "\t\t\t\t... validation passed for $name with " . $parts[$i] if DEBUG;
                     }
+                    
                     $mapping->{$name} = $parts[$i];
                 }
                 else {
-                    warn "\t\t... found a constant (" . $components[$i] . ")"
-                        if DEBUG;
+                    warn "\t\t... found a constant (" . $components[$i] . ")" if DEBUG;
+                    
                     ($components[$i] eq $parts[$i]) || die "CONSTANT DID NOT MATCH\n";
-                    warn "\t\t\t... constant matched"
-                        if DEBUG;
+                    
+                    warn "\t\t\t... constant matched" if DEBUG;
                 }
             }
         
         };
         unless ($@) {
-            warn "+ " . $route->path . " matched " . $url
-                if DEBUG;
+            warn "+ " . $route->path . " matched " . $url if DEBUG;
             return $mapping;
         }
         else {
-            warn "\t- " . $route->path . " did not match " . $url . " because " . $@
-                if DEBUG;
+            warn "~ got an exception here : " . $@ if DEBUG;
+            warn "\t- " . $route->path . " did not match " . $url . " because " . $@ if DEBUG;
         }
         
     }
@@ -102,12 +109,11 @@ sub uri_for {
             
             my %reverse_url_map = reverse %url_map;
 
-            warn "> Attempting to match " . $route->path . " to (" . (join " / " => @keys) . ")"
-                if DEBUG;                
+            warn "> Attempting to match " . $route->path . " to (" . (join " / " => @keys) . ")" if DEBUG;                
             
             (
-                $route->length == scalar @keys ||
-                scalar keys %{$route->guide} == scalar @keys
+                scalar @keys == $route->length ||
+                scalar @keys == $route->length_with_defaults_and_validations
             ) || die "LENGTH DID NOT MATCH\n";
             
             my @components = @{$route->components};
@@ -115,44 +121,49 @@ sub uri_for {
             foreach my $i (0 .. $#components) {  
                 
                 # if it is a variable (starts with a colon)
-                if ($components[$i] =~ /^\:(.*)$/) {
-                    my $name = $1;
+                if (my $name = $route->is_component_variable($components[$i])) {
+                    
                     unless (exists $url_map{$name}) {
-                        unless ($route->has_guide && exists $route->guide->{$name}) {
+                        
+                        unless ($route->has_defaults && exists $route->defaults->{$name}) {
                             # NOTE:
                             # this will all get cleaned up in the end
                             die "MISSING ITEM\n"
                         }
+                        
                     }
-                    push @url => $url_map{$name};
-                    warn "\t\t... removing $name from url map"
-                        if DEBUG;
+
+                    push @url => $url_map{$name}
+                        unless $route->is_component_optional($components[$i]) && 
+                               $route->defaults->{$name} eq $url_map{$name};
+                    
+                    warn "\t\t... removing $name from url map" if DEBUG;
+                    
                     delete $url_map{$name};
                 }
                 else {
-                    warn "\t\t... found a constant (" . $components[$i] . ")"
-                        if DEBUG;
+                    warn "\t\t... found a constant (" . $components[$i] . ")" if DEBUG;
+                    
                     push @url => $components[$i];
-                    warn "\t\t... removing constant " . $components[$i] . " at key " . $reverse_url_map{$components[$i]} . " from url map"
-                        if DEBUG;
+                    
+                    warn "\t\t... removing constant " . $components[$i] . " at key " . $reverse_url_map{$components[$i]} . " from url map" if DEBUG;
+                    
                     delete $url_map{$reverse_url_map{$components[$i]}}
                         if $reverse_url_map{$components[$i]};                        
                         
                 }                    
                 
-                warn "+++ URL so far ... " . (join "/" => @url)
-                    if DEBUG;
+                warn "+++ URL so far ... " . (join "/" => @url) if DEBUG;
             }
             
-            warn "Remaining keys " . (join ", " => keys %url_map)
-                if DEBUG;  
+            warn "Remaining keys " . (join ", " => keys %url_map) if DEBUG;  
             
             foreach my $remaining_key (keys %url_map) {
                 # some keys will not be in the URL, but 
                 # we want to make sure they are a correct 
                 # match for the URL
-                if (exists $route->guide->{$remaining_key} && 
-                    $route->guide->{$remaining_key} eq $url_map{$remaining_key}) {
+                if (exists $route->defaults->{$remaining_key} && 
+                    $route->defaults->{$remaining_key} eq $url_map{$remaining_key}) {
                         
                     delete $url_map{$remaining_key};
                 }

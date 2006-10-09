@@ -4,7 +4,7 @@ use strict;
 use warnings;
 
 use Test::More no_plan => 1;
-
+use Test::Path::Router;
 use Data::Dumper;
 
 BEGIN {
@@ -20,30 +20,40 @@ can_ok($router, 'uri_for');
 
 # create some routes
 
-$router->add_route('blog' => {
-    controller => 'blog',
-    action     => 'index',
-});
+$router->add_route('blog' => (
+    defaults       => {
+        controller => 'blog',
+        action     => 'index',
+    }
+));
 
-$router->add_route('blog/:year/:month/:day' => {
-    controller => 'blog',
-    action     => 'show_date',
-    year       => qr/\d\d\d\d/,
-    month      => qr/\d\d?/,
-    day        => qr/\d\d?/,        
-});
+$router->add_route('blog/:year/:month/:day' => (
+    defaults       => {
+        controller => 'blog',
+        action     => 'show_date',      
+    }, 
+    validations => {
+        year    => qr/\d\d\d\d/,
+        month   => qr/\d\d?/,
+        day     => qr/\d\d?/,    
+    }
+));
 
-$router->add_route('blog/:action/:id' => {
-    controller => 'blog',
-    id         => qr/\d+/
-});
+$router->add_route('blog/:action/:id' => (
+    defaults       => {
+        controller => 'blog',
+    }, 
+    validations => {
+        id      => qr/\d+/    
+    }
+));
 
 # add a catch all 
 $router->add_route(':controller/:action/:id');
 
 # create some tests
 
-my %passing_tests = ( 
+routes_ok($router, {
     # blog
     'blog' => {
         controller => 'blog',
@@ -86,26 +96,9 @@ my %passing_tests = (
         action     => 'delete',
         id         => 5,
     },        
-);
+},
+"... our routes are solid");
 
-# test the roundtrip
-
-foreach my $path (keys %passing_tests) {
-    # the path generated from the hash
-    # is the same as the path supplied
-    is(
-        $path, 
-        $router->uri_for(%{$passing_tests{$path}}), 
-        '... round-tripping the light fantasitc'
-    );
-    # the path supplied produces the
-    # same match as the hash supplied 
-    is_deeply(
-        $router->match($path),
-        $passing_tests{$path},
-        '... dont call it a comeback, I been here for years'
-    );    
-}
 
 1;
 

@@ -4,6 +4,7 @@ use strict;
 use warnings;
 
 use Test::More no_plan => 1;
+use Test::Path::Router;
 
 use Data::Dumper;
 
@@ -15,40 +16,30 @@ my $router = Path::Router->new;
 isa_ok($router, 'Path::Router');
 
 # create some routes
-
-$router->add_route(':controller/:action');
-
-$router->add_route(':controller/:id/:action' => {
-    id     => qr/\d+/,
-});
-
-# THIS:
-
-# /people/         (:action => 'index')
-# /people/new
-# /people/create
-# /people/56/      (:action => 'show' by default)
-# /people/56/edit
-# /people/56/remove
-# /people/56/update
-
-# SHOULD BE POSSIBLE WITH THIS:
  
-# $router->add_route(':controller/?:action' => {
-#     action => 'index'
-# });
-# 
-# $router->add_route(':controller/:id/?:action' => {
-#     action => 'show',
-#     id     => qr/\d+/,
-# });
+$router->add_route(':controller/?:action' => (
+    defaults => {
+        action => 'index'
+    },
+    validations => {
+        action => qr/\D+/
+    }
+));
 
-# IT CAN BE REVERSABLE IF WE CHECK 
-# DEFAULT VALUES IN THE REVERSE FUNCTION
-# AND IF CURRENT VALUE MATCHES THE DEFAULT
-# WE CAN OMIT IT  
+$router->add_route(':controller/:id/?:action' => (
+    defaults => {
+        action => 'show',
+    },
+    validations => {
+        id     => qr/\d+/,
+    }
+));
 
-my %passing_tests = (
+routes_ok($router, { 
+	'people' => {
+		controller => 'people',
+		action     => 'index',
+	}, 
 	'people/new' => {
 		controller => 'people',
 		action     => 'new',
@@ -57,6 +48,11 @@ my %passing_tests = (
 		controller => 'people',
 		action     => 'create',
 	},
+	'people/56' => {
+		controller => 'people',
+		action     => 'show',
+		id         => 56,
+	},	
 	'people/56/edit' => {
 		controller => 'people',
 		action     => 'edit',
@@ -72,24 +68,8 @@ my %passing_tests = (
 		action     => 'update',
 		id         => 56,		
 	},
-); 
-
-foreach my $path (keys %passing_tests) {
-    # the path generated from the hash
-    # is the same as the path supplied
-    is(
-        $path, 
-        $router->uri_for(%{$passing_tests{$path}}), 
-        '... round-tripping the light fantasitc for ' .  $path   
-    );
-    # the path supplied produces the
-    # same match as the hash supplied 
-    is_deeply(
-        $router->match($path),
-        $passing_tests{$path},
-        '... dont call it a comeback, I been here for years ' . $path
-    );    
-}
+},
+"... our routes are solid");
 
 1;
 
