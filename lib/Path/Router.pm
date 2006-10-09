@@ -5,6 +5,7 @@ use Moose;
 our $VERSION   = '0.01';
 our $AUTHORITY = 'cpan:STEVAN';
 
+use File::Spec::Unix ();
 use Path::Router::Route;
 
 use constant DEBUG => 0;
@@ -17,13 +18,16 @@ has 'routes' => (
 sub add_route {
     my ($self, $path, %options) = @_;
     
-    push @{$self->routes} => Path::Router::Route->new(path  => $path, %options);
+    push @{$self->routes} => Path::Router::Route->new(
+        path  => $path, 
+        %options
+    );
 }
 
 sub match {
     my ($self, $url) = @_;
     
-    my @parts = grep { $_ } split '/' => $url;
+    my @parts = grep { $_ } split '/' => File::Spec::Unix::canonpath('File::Spec::Unix', $url);
     
     foreach my $route (@{$self->routes}) {
         my $mapping;
@@ -220,12 +224,13 @@ Path::Router - A tool for routing paths
       }
   ));
   
-  $router->add_route('blog/:action/:id' => (
+  $router->add_route('blog/:action/?:id' => (
       defaults => {
           controller => 'blog',
       },
       validations => {
-          id         => qr/\d+/,
+          action  => qr/\D+/,   
+          id      => qr/\d+/,
       }
   ));
   

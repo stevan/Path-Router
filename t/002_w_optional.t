@@ -6,8 +6,6 @@ use warnings;
 use Test::More no_plan => 1;
 use Test::Path::Router;
 
-use Data::Dumper;
-
 BEGIN {
     use_ok('Path::Router');
 }
@@ -18,22 +16,24 @@ isa_ok($router, 'Path::Router');
 # create some routes
  
 $router->add_route(':controller/?:action' => (
-    defaults => {
+    defaults   => {
         action => 'index'
     },
     validations => {
-        action => qr/\D+/
+        action  => qr/\D+/
     }
 ));
 
 $router->add_route(':controller/:id/?:action' => (
-    defaults => {
+    defaults   => {
         action => 'show',
     },
     validations => {
-        id     => qr/\d+/,
+        id      => qr/\d+/,
     }
 ));
+
+# run it through some tests
 
 routes_ok($router, { 
 	'people' => {

@@ -12,9 +12,19 @@ use Sub::Exporter;
 our $VERSION   = '0.01';
 our $AUTHORITY = 'cpan:STEVAN';
 
-Sub::Exporter::setup_exporter({ 
-    exports => [ qw(routes_ok) ],
-    groups  => { default => [ qw(routes_ok) ] }
+my @exports = qw/
+    routes_ok
+    path_ok
+    path_not_ok
+    path_is
+    mapping_ok
+    mapping_not_ok
+    mapping_is
+/;
+
+Sub::Exporter::setup_exporter({
+    exports => \@exports,
+    groups  => { default => \@exports }
 });
 
 our $Test = Test::Builder->new;
@@ -28,29 +38,116 @@ sub routes_ok {
         my $generated_path = $router->uri_for(%{$mapping});
 
         # the path generated from the hash
-        # is the same as the path supplied        
+        # is the same as the path supplied
         if ($path ne $generated_path) {
-            $Test->ok(0, $message);             
-            $Test->diag("... paths do not match\n" . 
+            $Test->ok(0, $message);
+            $Test->diag("... paths do not match\n" .
                         "   got:      '" . $path . "'\n" .
-                        "   expected: '" . $generated_path . "'");                       
+                        "   expected: '" . $generated_path . "'");
             return;
         }
-        
+
         my $generated_mapping = $router->match($path);
-        
+
         # the path supplied produces the
-        # same match as the hash supplied 
-        
+        # same match as the hash supplied
+
         unless (Test::Deep::eq_deeply($generated_mapping, $mapping)) {
-            $Test->ok(0, $message);             
-            $Test->diag("... mappings do not match for '$path'\n" . 
-                        "   got:      '" . Data::Dumper::Dumper($generated_mapping) . "'\n" .
-                        "   expected: '" . Data::Dumper::Dumper($mapping) . "'");                       
-            return;            
-        }    
-    }   
+            $Test->ok(0, $message);
+            $Test->diag("... mappings do not match for '$path'\n" .
+                        "   got:      '" . _dump_mapping_info($generated_mapping) . "'\n" .
+                        "   expected: '" . _dump_mapping_info($mapping) . "'");
+            return;
+        }
+    }
     $Test->ok(1, $message);
+}
+
+sub path_ok {
+    my ($router, $path, $message) = @_;
+    if ($router->match($path)) {
+        $Test->ok(1, $message);
+    }
+    else {
+        $Test->ok(0, $message);
+    }
+}
+
+sub path_not_ok {
+    my ($router, $path, $message) = @_;
+    unless ($router->match($path)) {
+        $Test->ok(1, $message);
+    }
+    else {
+        $Test->ok(0, $message);
+    }
+}
+
+sub path_is {
+    my ($router, $path, $expected, $message) = @_;
+
+    my $generated_mapping = $router->match($path);
+
+    # the path supplied produces the
+    # same match as the hash supplied
+
+    unless (Test::Deep::eq_deeply($generated_mapping, $expected)) {
+        $Test->ok(0, $message);
+        $Test->diag("... mappings do not match for '$path'\n" .
+                    "   got:      '" . _dump_mapping_info($generated_mapping) . "'\n" .
+                    "   expected: '" . _dump_mapping_info($expected) . "'");
+    }
+    else {
+        $Test->ok(1, $message);
+    }
+}
+
+sub mapping_ok {
+    my ($router, $mapping, $message) = @_;
+    if ($router->uri_for($mapping)) {
+        $Test->ok(1, $message);
+    }
+    else {
+        $Test->ok(0, $message);
+    }
+}
+
+sub mapping_not_ok {
+    my ($router, $mapping, $message) = @_;
+    unless ($router->uri_for($mapping)) {
+        $Test->ok(1, $message);
+    }
+    else {
+        $Test->ok(0, $message);
+    }
+}
+
+sub mapping_is {
+    my ($router, $mapping, $expected, $message) = @_;
+    
+    my $generated_path = $router->uri_for(%{$mapping});
+
+    # the path generated from the hash
+    # is the same as the path supplied
+    if ($generated_path ne $expected) {
+        $Test->ok(0, $message);
+        $Test->diag("... paths do not match\n" .
+                    "   got:      '" . $generated_path . "'\n" .
+                    "   expected: '" . $expected . "'");
+    }
+    else {
+        $Test->ok(1, $message);
+    }
+}
+
+## helper function
+
+sub _dump_mapping_info {
+    my ($mapping) = @_;
+    local $Data::Dumper::Indent = 0;
+    my $out = Data::Dumper::Dumper($mapping);
+    $out =~ s/\$VAR\d//;
+    return $out;
 }
 
 1;
@@ -69,10 +166,36 @@ Test::Path::Router - A testing module for testing routes
   use Test::Path::Router;
 
   my $router = Path::Router->new;
-  
+
   # ... define some routes
-  
-  routes_ok($router, { 
+
+  path_ok($router, 'admin/remove_user/56', '... this is a valid path');
+
+  path_is($router,
+      'admin/edit_user/5',
+      {
+          controller => 'admin',
+          action     => 'edit_user',
+          id         => 5,
+      },
+  '... the path and mapping match');
+
+  mapping_ok($router, {
+      controller => 'admin',
+      action     => 'edit_user',
+      id         => 5,
+  }, '... this maps to a valid path');
+
+  mapping_is($router,
+      {
+          controller => 'admin',
+          action     => 'edit_user',
+          id         => 5,
+      },
+      'admin/edit_user/5',
+  '... the mapping and path match');
+
+  routes_ok($router, {
       'admin' => {
           controller => 'admin',
           action     => 'index',
@@ -84,27 +207,39 @@ Test::Path::Router - A testing module for testing routes
       'admin/edit_user/5' => {
           controller => 'admin',
           action     => 'edit_user',
-          user_id    => 5,
-      }    
+          id         => 5,
+      }
   },
   "... our routes are valid");
 
 =head1 DESCRIPTION
 
-This module helps in testing out your path routes, to make sure 
+This module helps in testing out your path routes, to make sure
 they are valid.
 
 =head1 EXPORTED FUNCTIONS
 
 =over 4
 
+=item B<path_ok ($router, $path, ?$message)>
+
+=item B<path_not_ok ($router, $path, ?$message)>
+
+=item B<path_is ($router, $path, $mapping, ?$message)>
+
+=item B<mapping_ok ($router, $mapping, ?$message)>
+
+=item B<mapping_not_ok ($router, $mapping, ?$message)>
+
+=item B<mapping_is ($router, $mapping, $path, ?$message)>
+
 =item B<routes_ok ($router, \%test_routes, ?$message)>
 
-This test function will accept a set of C<%test_routes> which 
-will get checked against your C<$router> instance. This will 
-check to be sure that all paths in C<%test_routes> procude 
-the expected mappings, and that all mappings also produce the 
-expected paths. It basically assures you that your paths 
+This test function will accept a set of C<%test_routes> which
+will get checked against your C<$router> instance. This will
+check to be sure that all paths in C<%test_routes> procude
+the expected mappings, and that all mappings also produce the
+expected paths. It basically assures you that your paths
 are roundtrippable, so that you can be confident in them.
 
 =back

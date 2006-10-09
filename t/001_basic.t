@@ -5,7 +5,6 @@ use warnings;
 
 use Test::More no_plan => 1;
 use Test::Path::Router;
-use Data::Dumper;
 
 BEGIN {
     use_ok('Path::Router');
@@ -44,12 +43,10 @@ $router->add_route('blog/:action/:id' => (
         controller => 'blog',
     }, 
     validations => {
+        action  => qr/\D+/,        
         id      => qr/\d+/    
     }
 ));
-
-# add a catch all 
-$router->add_route(':controller/:action/:id');
 
 # create some tests
 
