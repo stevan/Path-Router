@@ -44,6 +44,18 @@ $router->add_route('blog/:action/:id' => (
     }
 ));
 
+path_ok($router, $_, '... matched path (' . $_ . ')') 
+    foreach qw[
+        /blog/
+        
+        /blog/edit/15/     
+        
+        /blog/2006/31/20/      
+        /blog/2006/31/2/          
+        /blog/2006/3/2/ 
+        /blog/2006/3/20/                                        
+    ];
+
 path_not_ok($router, $_, '... could not match path (' . $_ . ')') 
     foreach qw[
         foo/
