@@ -6,8 +6,8 @@ my $build = Module::Build->new(
     module_name => 'Path::Router',
     license => 'perl',
     requires => {
-        'Moose'      => 0,     
-        'File::Spec' => 0,
+        'Moose'            => 0,     
+        'File::Spec::Unix' => 0,
     },
     optional => {
         'Term::ReadLine' => 0,
