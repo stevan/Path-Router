@@ -65,13 +65,47 @@ Test::Path::Router - A testing module for testing routes
 
 =head1 SYNOPSIS
 
+  use Test::More plan => 1;
+  use Test::Path::Router;
+
+  my $router = Path::Router->new;
+  
+  # ... define some routes
+  
+  routes_ok($router, { 
+      'admin' => {
+          controller => 'admin',
+          action     => 'index',
+      },
+      'admin/add_user' => {
+          controller => 'admin',
+          action     => 'add_user',
+      },
+      'admin/edit_user/5' => {
+          controller => 'admin',
+          action     => 'edit_user',
+          user_id    => 5,
+      }    
+  },
+  "... our routes are valid");
+
 =head1 DESCRIPTION
+
+This module helps in testing out your path routes, to make sure 
+they are valid.
 
 =head1 EXPORTED FUNCTIONS
 
 =over 4
 
-=item B<routes_ok>
+=item B<routes_ok ($router, \%test_routes, ?$message)>
+
+This test function will accept a set of C<%test_routes> which 
+will get checked against your C<$router> instance. This will 
+check to be sure that all paths in C<%test_routes> procude 
+the expected mappings, and that all mappings also produce the 
+expected paths. It basically assures you that your paths 
+are roundtrippable, so that you can be confident in them.
 
 =back
 

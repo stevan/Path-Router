@@ -58,7 +58,8 @@ sub match {
                 }
                 
                 # if it is a variable (starts with a colon)
-                if (my $name = $route->is_component_variable($components[$i])) {
+                if ($route->is_component_variable($components[$i])) {
+                    my $name = $route->get_component_name($components[$i]);
                     
                     warn "\t\t... mapped " . $components[$i] . " to " . $parts[$i] if DEBUG;
                     
@@ -121,7 +122,8 @@ sub uri_for {
             foreach my $i (0 .. $#components) {  
                 
                 # if it is a variable (starts with a colon)
-                if (my $name = $route->is_component_variable($components[$i])) {
+                if ($route->is_component_variable($components[$i])) {
+                    my $name = $route->get_component_name($components[$i]);
                     
                     unless (exists $url_map{$name}) {
                         
@@ -193,29 +195,39 @@ __END__
 
 =head1 NAME
 
-Path::Router - A tool for deconstructing paths
+Path::Router - A tool for routing paths
 
 =head1 SYNOPSIS
 
   my $router = Path::Router->new;
   
-  $router->add_route('blog' => {
-      controller => 'blog',
-      action     => 'index',
-  });
+  $router->add_route('blog' => (
+      defaults => {
+          controller => 'blog',
+          action     => 'index',
+      }
+  ));
   
-  $router->add_route('blog/:year/:month/:day' => {
-      controller => 'blog',
-      action     => 'show_date',
-      year       => qr/\d\d\d\d/,
-      month      => qr/\d\d?/,
-      day        => qr/\d\d?/,        
-  });
+  $router->add_route('blog/:year/:month/:day' => (
+      defaults => {
+          controller => 'blog',
+          action     => 'show_date',
+      },
+      validations => {
+          year       => qr/\d{4}/,
+          month      => qr/\d{1,2}/,
+          day        => qr/\d{1,2}/,        
+      }
+  ));
   
-  $router->add_route('blog/:action/:id' => {
-      controller => 'blog',
-      id         => qr/\d+/,
-  });
+  $router->add_route('blog/:action/:id' => (
+      defaults => {
+          controller => 'blog',
+      },
+      validations => {
+          id         => qr/\d+/,
+      }
+  ));
   
   # ... in your dispatcher
   
@@ -251,7 +263,7 @@ It is in Perl :)
 
 =item B<new>
 
-=item B<add_route ($path, ?%guide)>
+=item B<add_route ($path, ?%options)>
 
 =item B<routes>
 

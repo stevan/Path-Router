@@ -6,11 +6,14 @@ my $build = Module::Build->new(
     module_name => 'Path::Router',
     license => 'perl',
     requires => {
-        'Moose' => '0.13',           
+        'Moose' => 0,           
     },
     optional => {
         'Term::ReadLine' => 0,
         'Data::Dumper'   => 0,        
+        'Sub::Exporter'  => 0,
+        'Test::Builder'  => 0,
+        'Test::Deep'     => 0,        
     },
     build_requires => {
         'Test::More'       => '0.62',

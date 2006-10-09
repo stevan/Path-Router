@@ -24,6 +24,11 @@ has 'defaults' => (
 has 'validations' => (
     is  => 'ro', 
     isa => 'HashRef', 
+    predicate => {
+        'has_validations' => sub {
+            scalar keys %{(shift)->{validations}}
+        }
+    }    
 );
 
 has 'components' => (
@@ -56,18 +61,17 @@ sub has_validation_for {
 
 sub is_component_optional {
     my ($self, $component) = @_; 
-    $component =~ /^\?/;    
+    $component =~ /^\?\:/;    
 }
 
 sub is_component_variable {
     my ($self, $component) = @_; 
-    my $name;
-    if ($self->is_component_optional($component)) {
-        ($name) = ($component =~ /^\?\:(.*)$/);        
-    }
-    else {
-        ($name) = ($component =~ /^\:(.*)$/);        
-    }
+    $component =~ /^\??\:/; 
+}
+
+sub get_component_name {
+    my ($self, $component) = @_;
+    my ($name) = ($component =~ /^\??\:(.*)$/);        
     return $name;
 }
 
@@ -115,17 +119,43 @@ Path::Router::Route - An object to represent a route
 
 =item B<validations>
 
-=item B<create_default_mapping>
+=item B<has_validations>
 
 =item B<has_validation_for>
 
-=item B<is_component_optional>
+=back
 
-=item B<is_component_variable>
+=over 4
+
+=item B<create_default_mapping>
+
+=back
+
+=head2 Component checks
+
+=over 4
+
+=item B<get_component_name ($component)>
+
+=item B<is_component_optional ($component)>
+
+=item B<is_component_variable ($component)>
+
+=back
+
+=head2 Length methods
+
+=over 4
 
 =item B<length_with_defaults_and_validations>
 
 =item B<length_without_optionals>
+
+=back
+
+=head2 Introspection
+
+=over 4
 
 =item B<meta>
 

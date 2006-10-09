@@ -33,9 +33,9 @@ $router->add_route('blog/:year/:month/:day' => (
         action     => 'show_date',      
     }, 
     validations => {
-        year    => qr/\d\d\d\d/,
-        month   => qr/\d\d?/,
-        day     => qr/\d\d?/,    
+        year    => qr/\d{4}/,
+        month   => qr/\d{1,2}/,
+        day     => qr/\d{1,2}/,    
     }
 ));
 
