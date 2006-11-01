@@ -28,7 +28,7 @@ sub add_route {
 sub match {
     my ($self, $url) = @_;
     
-    my @parts = grep { $_ } split '/' => File::Spec::Unix::canonpath('File::Spec::Unix', $url);
+    my @parts = grep { $_ } split '/' => File::Spec::Unix->canonpath($url);
     
     foreach my $route (@{$self->routes}) {
         my $mapping;
