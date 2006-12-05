@@ -142,6 +142,7 @@ sub uri_for {
 
                     push @url => $url_map{$name}
                         unless $route->is_component_optional($components[$i]) && 
+                               $route->defaults->{$name}                      &&
                                $route->defaults->{$name} eq $url_map{$name};
                     
                     warn "\t\t... removing $name from url map" if DEBUG;
