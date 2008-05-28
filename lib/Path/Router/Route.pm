@@ -49,6 +49,8 @@ has 'length' => (
     default => sub { scalar @{(shift)->components} }
 );
 
+has 'target' => (is => 'ro', isa => 'Any', predicate => 'has_target');
+
 # misc
 
 sub create_default_mapping {
@@ -109,9 +111,13 @@ Path::Router::Route - An object to represent a route
 
 =over 4
 
-=item B<new (path => $path, ?(guide => $guide))>
+=item B<new (path => $path, ?%options)>
 
 =item B<path>
+
+=item B<target>
+
+=item B<has_target>
 
 =item B<components>
 

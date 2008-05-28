@@ -46,7 +46,7 @@ sub routes_ok {
             return;
         }
 
-        my $generated_mapping = $router->match($path);
+        my $generated_mapping = $router->match($path)->mapping;
 
         # the path supplied produces the
         # same match as the hash supplied
@@ -85,7 +85,7 @@ sub path_not_ok {
 sub path_is {
     my ($router, $path, $expected, $message) = @_;
 
-    my $generated_mapping = $router->match($path);
+    my $generated_mapping = $router->match($path)->mapping;
 
     # the path supplied produces the
     # same match as the hash supplied

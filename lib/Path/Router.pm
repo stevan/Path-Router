@@ -8,6 +8,7 @@ use File::Spec::Unix ();
 
 use Path::Router::Types;
 use Path::Router::Route;
+use Path::Router::Route::Match;
 
 use constant DEBUG => 0;
 
@@ -91,7 +92,12 @@ sub match {
         };
         unless ($@) {
             warn "+ ", $route->path, " matched ", $url if DEBUG;
-            return $mapping;
+            
+            return Path::Router::Route::Match->new(
+                path    => (join "/" => @parts),
+                route   => $route,
+                mapping => $mapping,
+            );
         }
         else {
             warn "~ got an exception here : ", $@ if DEBUG;
