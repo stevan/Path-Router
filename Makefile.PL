@@ -1,0 +1,28 @@
+use strict;
+use warnings;
+use inc::Module::Install;
+
+name 'Path-Router';
+all_from 'lib/Path/Router.pm';
+license 'perl';
+
+# prereqs
+requires 'Moose' => '0.456';
+requires 'File::Spec::Unix';
+
+feature 'Path::Router::Shell',
+    -default         => 1,
+    'Term::Readline' => '0';  
+
+# things the tests need
+build_requires 'Test::More'      => '0.62';
+build_requires 'Test::Exception' => '0.21';
+build_requires 'Test::Deep';
+build_requires 'Test::Builder';
+
+tests_recursive;
+
+auto_install;
+
+WriteAll();
+

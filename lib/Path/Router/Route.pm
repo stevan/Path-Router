@@ -1,9 +1,10 @@
-
 package Path::Router::Route;
 use Moose;
 
 our $VERSION   = '0.01';
 our $AUTHORITY = 'cpan:STEVAN';
+
+use Path::Router::Types;
 
 has 'path'  => (
     is       => 'ro', 
@@ -24,7 +25,8 @@ has 'defaults' => (
 
 has 'validations' => (
     is        => 'ro', 
-    isa       => 'HashRef', 
+    isa       => 'Path::Router::Route::ValidationMap', 
+    coerce    => 1,
     default   => sub { {} },
     predicate => {
         'has_validations' => sub {
@@ -35,7 +37,7 @@ has 'validations' => (
 
 has 'components' => (
     is      => 'ro', 
-    isa     => 'ArrayRef',
+    isa     => 'ArrayRef[Str]',
     lazy    => 1,
     default => sub { [ split '/' => (shift)->path ] }
 );
@@ -163,13 +165,21 @@ Path::Router::Route - An object to represent a route
 
 =back
 
-=head1 AUTHORS
+=head1 BUGS
 
-Stevan Little E<lt>stevan.little@gmail.comE<gt>
+All complex software has bugs lurking in it, and this module is no 
+exception. If you find a bug please either email me, or add the bug
+to cpan-RT.
+
+=head1 AUTHOR
+
+Stevan Little E<lt>stevan.little@iinteractive.comE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright 2006 by Stevan Little
+Copyright 2008 Infinity Interactive, Inc.
+
+L<http://www.iinteractive.com>
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.

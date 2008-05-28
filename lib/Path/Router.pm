@@ -1,4 +1,3 @@
-
 package Path::Router;
 use Moose;
 
@@ -6,19 +5,20 @@ our $VERSION   = '0.01';
 our $AUTHORITY = 'cpan:STEVAN';
 
 use File::Spec::Unix ();
+
+use Path::Router::Types;
 use Path::Router::Route;
 
 use constant DEBUG => 0;
 
 has 'routes' => (
     is      => 'ro', 
-    isa     => 'ArrayRef',
+    isa     => 'ArrayRef[Path::Router::Route]',
     default => sub { [] },
 );
 
 sub add_route {
     my ($self, $path, %options) = @_;
-    
     push @{$self->routes} => Path::Router::Route->new(
         path  => $path, 
         %options
@@ -35,7 +35,7 @@ sub match {
         
         eval {           
             
-            warn "> Attempting to match " . $route->path . " to (" . (join " / " => @parts) . ")" if DEBUG;
+            warn "> Attempting to match ", $route->path, " to (", (join " / " => @parts), ")" if DEBUG;
             
             #warn "parts: " . scalar @parts;
             #warn "route w/out optionals: " . $route->length_without_optionals;
@@ -52,7 +52,7 @@ sub match {
             my @components = @{$route->components};
             
             if ($route->has_defaults) {
-                warn "\t... " . $route->path . " has a guide" if DEBUG;
+                warn "\t... ", $route->path, " has a guide" if DEBUG;
                 $mapping = $route->create_default_mapping;
             }
         
@@ -66,21 +66,21 @@ sub match {
                 if ($route->is_component_variable($components[$i])) {
                     my $name = $route->get_component_name($components[$i]);
                     
-                    warn "\t\t... mapped " . $components[$i] . " to " . $parts[$i] if DEBUG;
+                    warn "\t\t... mapped ", $components[$i], " to ", $parts[$i] if DEBUG;
                     
-                    if (my $regexp = $route->has_validation_for($name)) {
+                    if (my $type = $route->has_validation_for($name)) {
                         
-                        warn "\t\t\t... checking validation for $name against $regexp and " . $parts[$i] if DEBUG;                            
+                        warn "\t\t\t... checking validation for $name against ", $type->name ," and ", $parts[$i] if DEBUG;                            
                         
-                        ($parts[$i] =~ /^$regexp$/) || die "VALIDATION DID NOT PASS\n";
+                        $type->check($parts[$i]) || die "VALIDATION DID NOT PASS\n";
                         
-                        warn "\t\t\t\t... validation passed for $name with " . $parts[$i] if DEBUG;
+                        warn "\t\t\t\t... validation passed for $name with ", $parts[$i] if DEBUG;
                     }
                     
                     $mapping->{$name} = $parts[$i];
                 }
                 else {
-                    warn "\t\t... found a constant (" . $components[$i] . ")" if DEBUG;
+                    warn "\t\t... found a constant (", $components[$i], ")" if DEBUG;
                     
                     ($components[$i] eq $parts[$i]) || die "CONSTANT DID NOT MATCH\n";
                     
@@ -90,12 +90,12 @@ sub match {
         
         };
         unless ($@) {
-            warn "+ " . $route->path . " matched " . $url if DEBUG;
+            warn "+ ", $route->path, " matched ", $url if DEBUG;
             return $mapping;
         }
         else {
-            warn "~ got an exception here : " . $@ if DEBUG;
-            warn "\t- " . $route->path . " did not match " . $url . " because " . $@ if DEBUG;
+            warn "~ got an exception here : ", $@ if DEBUG;
+            warn "\t- ", $route->path, " did not match ", $url, " because ", $@ if DEBUG;
         }
         
     }
@@ -115,7 +115,7 @@ sub uri_for {
             
             my %reverse_url_map = reverse %url_map;
 
-            warn "> Attempting to match " . $route->path . " to (" . (join " / " => @keys) . ")" if DEBUG;                
+            warn "> Attempting to match ", $route->path, " to (", (join " / " => @keys), ")" if DEBUG;                
             
             (
                 scalar @keys == $route->length ||
@@ -150,21 +150,21 @@ sub uri_for {
                     delete $url_map{$name};
                 }
                 else {
-                    warn "\t\t... found a constant (" . $components[$i] . ")" if DEBUG;
+                    warn "\t\t... found a constant (", $components[$i], ")" if DEBUG;
                     
                     push @url => $components[$i];
                     
-                    warn "\t\t... removing constant " . $components[$i] . " at key " . $reverse_url_map{$components[$i]} . " from url map" if DEBUG;
+                    warn "\t\t... removing constant ", $components[$i], " at key ", $reverse_url_map{$components[$i]}, " from url map" if DEBUG;
                     
                     delete $url_map{$reverse_url_map{$components[$i]}}
                         if $reverse_url_map{$components[$i]};                        
                         
                 }                    
                 
-                warn "+++ URL so far ... " . (join "/" => @url) if DEBUG;
+                warn "+++ URL so far ... ", (join "/" => @url) if DEBUG;
             }
             
-            warn "Remaining keys " . (join ", " => keys %url_map) if DEBUG;  
+            warn "Remaining keys ", (join ", " => keys %url_map) if DEBUG;  
             
             foreach my $remaining_key (keys %url_map) {
                 # some keys will not be in the URL, but 
@@ -185,7 +185,7 @@ sub uri_for {
         else {
             do {
                 warn join "/" => @url;
-                warn "... " . $@;
+                warn "... ", $@;
             } if DEBUG;
         }
         
@@ -219,10 +219,14 @@ Path::Router - A tool for routing paths
           controller => 'blog',
           action     => 'show_date',
       },
+      # validate with ...
       validations => {
+          # ... raw-Regexp refs
           year       => qr/\d{4}/,
-          month      => qr/\d{1,2}/,
-          day        => qr/\d{1,2}/,        
+          # ... custom Moose types you created
+          month      => 'NumericMonth', 
+          # ... Moose anon-subtypes created inline
+          day        => subtype('Int' => where { $_ <= 31 }),        
       }
   ));
   
@@ -232,7 +236,7 @@ Path::Router - A tool for routing paths
       },
       validations => {
           action  => qr/\D+/,   
-          id      => qr/\d+/,
+          id      => 'Int',  # also use plain Moose types too
       }
   ));
   
@@ -309,13 +313,21 @@ It is in Perl :)
 
 =back
 
-=head1 AUTHORS
+=head1 BUGS
 
-Stevan Little E<lt>stevan.little@gmail.comE<gt>
+All complex software has bugs lurking in it, and this module is no 
+exception. If you find a bug please either email me, or add the bug
+to cpan-RT.
+
+=head1 AUTHOR
+
+Stevan Little E<lt>stevan.little@iinteractive.comE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright 2006 by Stevan Little
+Copyright 2008 Infinity Interactive, Inc.
+
+L<http://www.iinteractive.com>
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.

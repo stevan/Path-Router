@@ -29,7 +29,7 @@ $router->add_route(':controller/:id/?:action' => (
         action => 'show',
     },
     validations => {
-        id      => qr/\d+/,
+        id      => 'Int',
     }
 ));
 

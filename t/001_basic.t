@@ -6,9 +6,15 @@ use warnings;
 use Test::More no_plan => 1;
 use Test::Path::Router;
 
+use Moose::Util::TypeConstraints;
+
 BEGIN {
     use_ok('Path::Router');
 }
+
+subtype 'NumericMonth'
+    => as 'Int'
+    => where { $_ <= 12 };
 
 my $router = Path::Router->new;
 isa_ok($router, 'Path::Router');
@@ -33,8 +39,8 @@ $router->add_route('blog/:year/:month/:day' => (
     }, 
     validations => {
         year    => qr/\d{4}/,
-        month   => qr/\d{1,2}/,
-        day     => qr/\d{1,2}/,    
+        month   => 'NumericMonth',
+        day     => subtype('Int' => where { $_ <= 31 }),    
     }
 ));
 
@@ -44,7 +50,7 @@ $router->add_route('blog/:action/:id' => (
     }, 
     validations => {
         action  => qr/\D+/,        
-        id      => qr/\d+/    
+        id      => 'Int'    
     }
 ));
 
@@ -57,20 +63,20 @@ routes_ok($router, {
         action     => 'index',
     },    
     # blog/:year/:month/:day
-    'blog/2006/20/5' => {
+    'blog/2006/12/5' => {
         controller => 'blog',
         action     => 'show_date',
         year       => 2006,
-        month      => 20,
+        month      => 12,
         day        => 5,        
     },
     # blog/:year/:month/:day
-    'blog/1920/1/50' => {
+    'blog/1920/12/10' => {
         controller => 'blog',
         action     => 'show_date',
         year       => 1920,
-        month      => 1,
-        day        => 50,        
+        month      => 12,
+        day        => 10,        
     },    
     # blog/:action/:id
     'blog/edit/5' => {

@@ -17,11 +17,16 @@ DEPENDENCIES
 This module requires these other modules and libraries:
 
 	Moose
+	File::Spec::Unix
 
 COPYRIGHT AND LICENCE
 
-Copyright 2006 by Stevan Little
+Stevan Little <stevan.little@iinteractive.com>
+
+Copyright 2008 Infinity Interactive, Inc.
+
+http://www.iinteractive.com
 
 This library is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself. 
+it under the same terms as Perl itself.
 

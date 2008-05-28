@@ -1,4 +1,3 @@
-
 package Path::Router::Shell;
 use Moose;
 
@@ -63,13 +62,21 @@ Path::Router::Shell - An interactive shell for testing router configurations
 
 =back
 
-=head1 AUTHORS
+=head1 BUGS
 
-Stevan Little E<lt>stevan.little@gmail.comE<gt>
+All complex software has bugs lurking in it, and this module is no 
+exception. If you find a bug please either email me, or add the bug
+to cpan-RT.
+
+=head1 AUTHOR
+
+Stevan Little E<lt>stevan.little@iinteractive.comE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright 2006 by Stevan Little
+Copyright 2008 Infinity Interactive, Inc.
+
+L<http://www.iinteractive.com>
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.
