@@ -96,7 +96,7 @@ sub match {
             return Path::Router::Route::Match->new(
                 path    => (join "/" => @parts),
                 route   => $route,
-                mapping => $mapping,
+                mapping => $mapping || {},
             );
         }
         else {
