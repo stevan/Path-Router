@@ -4,9 +4,15 @@ use Moose;
 our $VERSION   = '0.01';
 our $AUTHORITY = 'cpan:STEVAN';
 
-has 'path'    => (is => 'ro', isa => 'Str',                 required => 1);
-has 'route'   => (is => 'ro', isa => 'Path::Router::Route', required => 1);
-has 'mapping' => (is => 'ro', isa => 'HashRef',             required => 1);
+has 'path'    => (is => 'ro', isa => 'Str',     required => 1);
+has 'mapping' => (is => 'ro', isa => 'HashRef', required => 1);
+
+has 'route'   => (
+    is       => 'ro', 
+    isa      => 'Path::Router::Route', 
+    required => 1,
+    handles  => [qw[target]]
+);
 
 no Moose; 1;
 
@@ -35,6 +41,8 @@ Path::Router::Route::Match - The result of a Path::Router match
 =item B<path>
 
 =item B<route>
+
+=item B<target>
 
 =back
 
