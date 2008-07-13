@@ -7,7 +7,7 @@ all_from 'lib/Path/Router.pm';
 license 'perl';
 
 # prereqs
-requires 'Moose' => '0.456';
+requires 'Moose' => '0.46';
 requires 'File::Spec::Unix';
 
 feature 'Path::Router::Shell',

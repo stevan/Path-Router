@@ -1,5 +1,10 @@
 Revision history for Perl extension Path::Router
 
-0.01
+0.02
+    * Path::Router::Route
+      - silly fix to make sure exact paths will match
+        - added tests for this 
+
+0.01 Sat. July 12, 2008
     - copied Ruby on Rails Router, but make it 
       ... better, stronger, faster

@@ -1,7 +1,7 @@
 package Path::Router;
 use Moose;
 
-our $VERSION   = '0.01';
+our $VERSION   = '0.02';
 our $AUTHORITY = 'cpan:STEVAN';
 
 use File::Spec::Unix ();
@@ -38,14 +38,17 @@ sub match {
             
             warn "> Attempting to match ", $route->path, " to (", (join " / " => @parts), ")" if DEBUG;
             
-            #warn "parts: " . scalar @parts;
-            #warn "route w/out optionals: " . $route->length_without_optionals;
-            #warn join ", " => @{$route->components};
+            if (DEBUG) {
+                warn "parts length: " . scalar @parts;
+                warn "route length: " . $route->length;                
+                warn "route length w/out optionals: " . $route->length_without_optionals;
+                warn join ", " => @{$route->components};
+            }
             
             # they must be the same length
             (
-                scalar @parts == $route->length ||
-                scalar @parts == $route->length_without_optionals
+                scalar(@parts) == $route->length ||
+                scalar(@parts) == $route->length_without_optionals
             ) || die "LENGTHS DID NOT MATCH\n";
                 
             warn "\t... They are the same length" if DEBUG;

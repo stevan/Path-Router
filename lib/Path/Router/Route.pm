@@ -1,7 +1,7 @@
 package Path::Router::Route;
 use Moose;
 
-our $VERSION   = '0.01';
+our $VERSION   = '0.02';
 our $AUTHORITY = 'cpan:STEVAN';
 
 use Path::Router::Types;
@@ -39,7 +39,7 @@ has 'components' => (
     is      => 'ro', 
     isa     => 'ArrayRef[Str]',
     lazy    => 1,
-    default => sub { [ split '/' => (shift)->path ] }
+    default => sub { [ grep {$_} split '/' => (shift)->path ] }
 );
 
 has 'length' => (
