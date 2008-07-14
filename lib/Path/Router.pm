@@ -10,7 +10,7 @@ use Path::Router::Types;
 use Path::Router::Route;
 use Path::Router::Route::Match;
 
-use constant DEBUG => 0;
+our $DEBUG = 0;
 
 has 'routes' => (
     is      => 'ro', 
@@ -36,9 +36,9 @@ sub match {
         
         eval {           
             
-            warn "> Attempting to match ", $route->path, " to (", (join " / " => @parts), ")" if DEBUG;
+            warn "> Attempting to match ", $route->path, " to (", (join " / " => @parts), ")" if $DEBUG;
             
-            if (DEBUG) {
+            if ($DEBUG) {
                 warn "parts length: " . scalar @parts;
                 warn "route length: " . $route->length;                
                 warn "route length w/out optionals: " . $route->length_without_optionals;
@@ -51,12 +51,12 @@ sub match {
                 scalar(@parts) == $route->length_without_optionals
             ) || die "LENGTHS DID NOT MATCH\n";
                 
-            warn "\t... They are the same length" if DEBUG;
+            warn "\t... They are the same length" if $DEBUG;
         
             my @components = @{$route->components};
             
             if ($route->has_defaults) {
-                warn "\t... ", $route->path, " has a guide" if DEBUG;
+                warn "\t... ", $route->path, " has a guide" if $DEBUG;
                 $mapping = $route->create_default_mapping;
             }
         
@@ -70,31 +70,31 @@ sub match {
                 if ($route->is_component_variable($components[$i])) {
                     my $name = $route->get_component_name($components[$i]);
                     
-                    warn "\t\t... mapped ", $components[$i], " to ", $parts[$i] if DEBUG;
+                    warn "\t\t... mapped ", $components[$i], " to ", $parts[$i] if $DEBUG;
                     
                     if (my $type = $route->has_validation_for($name)) {
                         
-                        warn "\t\t\t... checking validation for $name against ", $type->name ," and ", $parts[$i] if DEBUG;                            
+                        warn "\t\t\t... checking validation for $name against ", $type->name ," and ", $parts[$i] if $DEBUG;                            
                         
                         $type->check($parts[$i]) || die "VALIDATION DID NOT PASS\n";
                         
-                        warn "\t\t\t\t... validation passed for $name with ", $parts[$i] if DEBUG;
+                        warn "\t\t\t\t... validation passed for $name with ", $parts[$i] if $DEBUG;
                     }
                     
                     $mapping->{$name} = $parts[$i];
                 }
                 else {
-                    warn "\t\t... found a constant (", $components[$i], ")" if DEBUG;
+                    warn "\t\t... found a constant (", $components[$i], ")" if $DEBUG;
                     
                     ($components[$i] eq $parts[$i]) || die "CONSTANT DID NOT MATCH\n";
                     
-                    warn "\t\t\t... constant matched" if DEBUG;
+                    warn "\t\t\t... constant matched" if $DEBUG;
                 }
             }
         
         };
         unless ($@) {
-            warn "+ ", $route->path, " matched ", $url if DEBUG;
+            warn "+ ", $route->path, " matched ", $url if $DEBUG;
             
             return Path::Router::Route::Match->new(
                 path    => (join "/" => @parts),
@@ -103,8 +103,8 @@ sub match {
             );
         }
         else {
-            warn "~ got an exception here : ", $@ if DEBUG;
-            warn "\t- ", $route->path, " did not match ", $url, " because ", $@ if DEBUG;
+            warn "~ got an exception here : ", $@ if $DEBUG;
+            warn "\t- ", $route->path, " did not match ", $url, " because ", $@ if $DEBUG;
         }
         
     }
@@ -124,7 +124,7 @@ sub uri_for {
             
             my %reverse_url_map = reverse %url_map;
 
-            warn "> Attempting to match ", $route->path, " to (", (join " / " => @keys), ")" if DEBUG;                
+            warn "> Attempting to match ", $route->path, " to (", (join " / " => @keys), ")" if $DEBUG;                
             
             (
                 scalar @keys == $route->length ||
@@ -154,26 +154,26 @@ sub uri_for {
                                $route->defaults->{$name}                      &&
                                $route->defaults->{$name} eq $url_map{$name};
                     
-                    warn "\t\t... removing $name from url map" if DEBUG;
+                    warn "\t\t... removing $name from url map" if $DEBUG;
                     
                     delete $url_map{$name};
                 }
                 else {
-                    warn "\t\t... found a constant (", $components[$i], ")" if DEBUG;
+                    warn "\t\t... found a constant (", $components[$i], ")" if $DEBUG;
                     
                     push @url => $components[$i];
                     
-                    warn "\t\t... removing constant ", $components[$i], " at key ", $reverse_url_map{$components[$i]}, " from url map" if DEBUG;
+                    warn "\t\t... removing constant ", $components[$i], " at key ", $reverse_url_map{$components[$i]}, " from url map" if $DEBUG;
                     
                     delete $url_map{$reverse_url_map{$components[$i]}}
                         if $reverse_url_map{$components[$i]};                        
                         
                 }                    
                 
-                warn "+++ URL so far ... ", (join "/" => @url) if DEBUG;
+                warn "+++ URL so far ... ", (join "/" => @url) if $DEBUG;
             }
             
-            warn "Remaining keys ", (join ", " => keys %url_map) if DEBUG;  
+            warn "Remaining keys ", (join ", " => keys %url_map) if $DEBUG;  
             
             foreach my $remaining_key (keys %url_map) {
                 # some keys will not be in the URL, but 
@@ -195,7 +195,7 @@ sub uri_for {
             do {
                 warn join "/" => @url;
                 warn "... ", $@;
-            } if DEBUG;
+            } if $DEBUG;
         }
         
     }
@@ -220,7 +220,11 @@ Path::Router - A tool for routing paths
       defaults => {
           controller => 'blog',
           action     => 'index',
-      }
+      }, 
+      # you can provide a fixed "target" 
+      # for a match as well, this can be
+      # anything you want it to be ...
+      target => My::App->get_controller('blog')->get_action('index')
   ));
   
   $router->add_route('blog/:year/:month/:day' => (
@@ -251,7 +255,8 @@ Path::Router - A tool for routing paths
   
   # ... in your dispatcher
   
-  my $deconstructed_path_hash = $router->match('/blog/edit/15');
+  # returns a Path::Router::Route::Match object
+  my $match = $router->match('/blog/edit/15'); 
   
   # ... in your code
   
@@ -321,6 +326,19 @@ It is in Perl :)
 =item B<meta>
 
 =back
+
+=head1 DEBUGGING
+
+This is still a relatively new module, even though it has been 
+sitting on my drive un-used for over a year now. We are only just 
+now using it at $work, so there still may be bugs lurking. For that
+very reason I have made the C<$DEBUG> variable more accessible 
+so that you can turn on the verbose debug logging with:
+
+  $Path::Router::DEBUG = 1;
+
+And possibly help clear out some bugs lurking in the dark corners
+of this module. 
 
 =head1 BUGS
 

@@ -1,6 +1,11 @@
 Revision history for Perl extension Path::Router
 
-0.02
+0.02 Mon. July 14, 2008
+    * Path::Router
+      - changed DEBUG from a constant sub to $DEBUG
+        a package variable. This is a new module and 
+        so easy debugability is important.
+        
     * Path::Router::Route
       - silly fix to make sure exact paths will match
         - added tests for this 

@@ -2,14 +2,19 @@ package Path::Router::Types;
 use Moose ();
 use Moose::Util::TypeConstraints;
 
-our $VERSION   = '0.01';
+our $VERSION   = '0.02';
 our $AUTHORITY = 'cpan:STEVAN';
 
 class_type 'Moose::Meta::TypeConstraint';
 
 subtype 'Path::Router::Route::ValidationMap'
     => as 'HashRef[Moose::Meta::TypeConstraint]';
-
+    
+# NOTE:
+# canonicalize the route 
+# validators into a simple
+# set of type constraints
+# - SL
 coerce 'Path::Router::Route::ValidationMap'
     => from 'HashRef[Str | RegexpRef | Moose::Meta::TypeConstraint]'
         => via {
@@ -27,7 +32,7 @@ coerce 'Path::Router::Route::ValidationMap'
             return \%orig;
         };
 
-no Moose; 1;
+no Moose; no Moose::Util::TypeConstraints; 1;
 
 __END__
 
