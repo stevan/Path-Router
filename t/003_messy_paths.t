@@ -3,9 +3,9 @@
 use strict;
 use warnings;
 
-use Test::More no_plan => 1;
+use Test::More tests => 11;
 use Test::Path::Router;
-use Data::Dumper;
+#use Data::Dumper;
 
 BEGIN {
     use_ok('Path::Router');

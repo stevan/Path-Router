@@ -12,7 +12,7 @@ requires 'File::Spec::Unix';
 
 feature 'Path::Router::Shell',
     -default         => 1,
-    'Term::Readline' => '0';  
+    'Term::ReadLine' => '0';  
 
 # things the tests need
 build_requires 'Test::More'      => '0.62';

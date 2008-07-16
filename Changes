@@ -1,5 +1,9 @@
 Revision history for Perl extension Path::Router
 
+0.03 Wed. July 16, 2008
+    * Path::Router::Shell
+      - fixed spelling of Term::ReadLine (RT #37693)
+
 0.02 Mon. July 14, 2008
     * Path::Router
       - changed DEBUG from a constant sub to $DEBUG

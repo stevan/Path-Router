@@ -1,10 +1,10 @@
 package Path::Router::Shell;
 use Moose;
 
-use Term::Readline;
+use Term::ReadLine;
 use Data::Dumper;
 
-our $VERSION   = '0.02';
+our $VERSION   = '0.03';
 our $AUTHORITY = 'cpan:STEVAN';
 
 has 'router' => (
