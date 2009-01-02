@@ -28,6 +28,7 @@ t/004_match_test.t
 t/005_match_test_w_optional.t
 t/006_match_w_targets.t
 t/007_match_exact_urls.t
+t/008_uri_for.t
 t/010_example_cat_chained_URIs.t
 t/pod.t
 t/pod_coverage.t
