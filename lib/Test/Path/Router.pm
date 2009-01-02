@@ -103,7 +103,7 @@ sub path_is {
 
 sub mapping_ok {
     my ($router, $mapping, $message) = @_;
-    if ($router->uri_for($mapping)) {
+    if (defined $router->uri_for($mapping)) {
         $Test->ok(1, $message);
     }
     else {
@@ -113,7 +113,7 @@ sub mapping_ok {
 
 sub mapping_not_ok {
     my ($router, $mapping, $message) = @_;
-    unless ($router->uri_for($mapping)) {
+    unless (defined $router->uri_for($mapping)) {
         $Test->ok(1, $message);
     }
     else {
@@ -128,11 +128,18 @@ sub mapping_is {
 
     # the path generated from the hash
     # is the same as the path supplied
-    if ($generated_path ne $expected) {
+    if (
+        (defined $generated_path and not defined $expected) or
+        (defined $expected and not defined $generated_path) or
+        (defined $generated_path and defined $expected
+            and $generated_path ne $expected)
+        ) {
+        $_ = defined $_ ? qq{'$_'} : qq{undef}
+            for $generated_path, $expected;
         $Test->ok(0, $message);
         $Test->diag("... paths do not match\n" .
-                    "   got:      '" . $generated_path . "'\n" .
-                    "   expected: '" . $expected . "'");
+                    "   got:      $generated_path\n" .
+                    "   expected: $expected");
     }
     else {
         $Test->ok(1, $message);

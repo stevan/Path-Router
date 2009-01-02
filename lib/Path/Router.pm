@@ -200,6 +200,7 @@ sub uri_for {
         
     }
     
+    return undef;
 }
 
 no Moose; 1;
