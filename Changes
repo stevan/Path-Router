@@ -1,5 +1,10 @@
 Revision history for Perl extension Path::Router
 
+0.04 Fri. January 2, 2009
+    * Path::Router
+      - fix uri_for to return undef on match failure instead of ''
+        (empty string)
+
 0.03 Wed. July 16, 2008
     * Path::Router::Shell
       - fixed spelling of Term::ReadLine (RT #37693)
