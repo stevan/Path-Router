@@ -8,7 +8,7 @@ use Test::Deep    ();
 use Data::Dumper  ();
 use Sub::Exporter;
 
-our $VERSION   = '0.01';
+our $VERSION   = '0.04';
 our $AUTHORITY = 'cpan:STEVAN';
 
 my @exports = qw/
