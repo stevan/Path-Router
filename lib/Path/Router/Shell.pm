@@ -34,6 +34,8 @@ sub shell {
     }
 }
 
+__PACKAGE__->meta->make_immutable;
+
 no Moose; 1
 
 __END__

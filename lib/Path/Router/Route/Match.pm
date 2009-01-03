@@ -14,6 +14,8 @@ has 'route'   => (
     handles  => [qw[target]]
 );
 
+__PACKAGE__->meta->make_immutable;
+
 no Moose; 1;
 
 __END__
@@ -33,6 +35,8 @@ dispatching nessecary.
 =head1 METHODS 
 
 =over 4
+
+=item B<new>
 
 =item B<path>
 

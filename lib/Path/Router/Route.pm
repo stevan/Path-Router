@@ -88,6 +88,8 @@ sub length_without_optionals {
     scalar grep { !$self->is_component_optional($_) } @{$self->components}
 }
 
+__PACKAGE__->meta->make_immutable;
+
 no Moose; 1
 
 __END__
