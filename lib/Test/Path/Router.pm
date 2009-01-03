@@ -41,12 +41,13 @@ sub routes_ok {
         if ($path ne $generated_path) {
             $Test->ok(0, $message);
             $Test->diag("... paths do not match\n" .
-                        "   got:      '" . $path . "'\n" .
-                        "   expected: '" . $generated_path . "'");
+                        "   got:      '" . $generated_path . "'\n" .
+                        "   expected: '" . $path . "'");
             return;
         }
 
-        my $generated_mapping = $router->match($path)->mapping;
+        my $match = $router->match($path);
+        my $generated_mapping = $match && $match->mapping;
 
         # the path supplied produces the
         # same match as the hash supplied
@@ -54,8 +55,8 @@ sub routes_ok {
         unless (Test::Deep::eq_deeply($generated_mapping, $mapping)) {
             $Test->ok(0, $message);
             $Test->diag("... mappings do not match for '$path'\n" .
-                        "   got:      '" . _dump_mapping_info($generated_mapping) . "'\n" .
-                        "   expected: '" . _dump_mapping_info($mapping) . "'");
+                        "   got:      " . _dump_mapping_info($generated_mapping) . "\n" .
+                        "   expected: " . _dump_mapping_info($mapping));
             return;
         }
     }
@@ -152,7 +153,7 @@ sub _dump_mapping_info {
     my ($mapping) = @_;
     local $Data::Dumper::Indent = 0;
     my $out = Data::Dumper::Dumper($mapping);
-    $out =~ s/\$VAR\d//;
+    $out =~ s/\$VAR\d\s*=\s*//;
     return $out;
 }
 
