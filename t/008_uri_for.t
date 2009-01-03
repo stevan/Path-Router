@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 2;
+use Test::More tests => 7;
 use Test::Path::Router;
 use Path::Router;
 
@@ -14,6 +14,19 @@ $router->add_route('/' => (
         controller => 'root',
         action     => 'index',
     }
+));
+
+$router->add_route('/name/?:first' => (
+    defaults => {
+        controller => 'name',
+    },
+));
+
+$router->add_route('/:name' => (
+    defaults => {
+        controller => 'root',
+        action     => 'hello',
+    },
 ));
 
 mapping_is(
@@ -34,4 +47,53 @@ mapping_is(
     },
     undef,
     'return undef for bogus mapping',
+);
+
+mapping_is(
+    $router,
+    {
+        name       => 'world',
+    },
+    'world',
+    'match with only component variables',
+);
+
+mapping_is(
+    $router,
+    {
+        first      => 'Sally',
+    },
+    'name/Sally',
+    'match with only optional component variables',
+);
+
+mapping_is(
+    $router,
+    {
+        controller => 'root',
+        action     => 'hello',
+        name       => 'world',
+    },
+    'world',
+    'match with extra variables',
+);
+
+mapping_is(
+    $router,
+    {
+        controller => 'root',
+        name       => 'world',
+    },
+    undef,
+    'do not match with missing default variable',
+);
+
+mapping_is(
+    $router,
+    {
+        controller => 'root',
+        action     => 'hello',
+    },
+    undef,
+    'do not match with missing component variable',
 );
