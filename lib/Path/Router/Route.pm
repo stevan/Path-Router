@@ -49,7 +49,43 @@ has 'length' => (
     default => sub { scalar @{(shift)->components} },
 );
 
+has 'required_variable_component_names' => (
+    is         => 'ro',
+    isa        => 'ArrayRef[Str]',
+    lazy_build => 1,
+);
+
+has 'optional_variable_component_names' => (
+    is         => 'ro',
+    isa        => 'ArrayRef[Str]',
+    lazy_build => 1,
+);
+
 has 'target' => (is => 'ro', isa => 'Any', predicate => 'has_target');
+
+sub _build_required_variable_component_names {
+    my $self = shift;
+    return [
+        map { $self->get_component_name($_) }
+        grep {
+            $self->is_component_variable($_) &&
+            ! $self->is_component_optional($_)
+        }
+        @{ $self->components }
+    ];
+}
+
+sub _build_optional_variable_component_names {
+    my $self = shift;
+    return [
+        map { $self->get_component_name($_) }
+        grep {
+            $self->is_component_variable($_) &&
+            $self->is_component_optional($_)
+        }
+        @{ $self->components }
+    ];
+}
 
 # misc
 
