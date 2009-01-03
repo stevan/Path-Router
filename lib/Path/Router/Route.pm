@@ -88,21 +88,6 @@ sub length_without_optionals {
     scalar grep { !$self->is_component_optional($_) } @{$self->components}
 }
 
-sub length_with_defaults_and_validations {
-    my $self = shift;
-    my %seen;
-    $seen{$_}++ for (
-        keys(%{$self->defaults}),
-        keys(%{$self->validations}),
-        map {
-            $self->is_component_variable($_)
-                ? $self->get_component_name($_)
-                : ()
-        } @{$self->components},
-    );
-    scalar keys %seen;
-}
-
 no Moose; 1
 
 __END__
@@ -169,8 +154,6 @@ introspect them.
 =head2 Length methods
 
 =over 4
-
-=item B<length_with_defaults_and_validations>
 
 =item B<length_without_optionals>
 

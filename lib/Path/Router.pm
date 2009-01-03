@@ -124,23 +124,34 @@ sub uri_for {
             
             my %reverse_url_map = reverse %url_map;
 
+            my %required = map {
+                $route->get_component_name($_) => 1
+            } grep { 
+                $route->is_component_variable($_) &&
+                ! $route->is_component_optional($_)
+            } @{ $route->components };
+
+            my %optional = map { 
+                $route->get_component_name($_) => 1
+            } grep {
+                $route->is_component_variable($_) &&
+                $route->is_component_optional($_)
+            } @{ $route->components };
+
+            @optional{ keys %{$route->defaults} } =
+                (1) x keys %{$route->defaults};
+
+            delete @optional{keys %required};
+
             if ($DEBUG) {
                 warn "> Attempting to match ", $route->path, " to (", (join " / " => @keys), ")";
-                my $keys = @keys;
-                my $length = $route->length;
-                my $length_wo = $route->length_without_optionals;
-                my $length_dv = $route->length_with_defaults_and_validations;
-                warn "keys ($keys) <=> length ($length)";
-                warn "keys ($keys) <=> length_wo ($length_wo)";
-                warn "keys ($keys) <=> length_dv ($length_dv)";
+                warn "@keys -> [ @{[ keys %required ]} ], [ @{[ keys %optional ]} ]";
             }
-            
             (
-                scalar @keys == $route->length ||
-                scalar @keys == $route->length_without_optionals ||
-                scalar @keys == $route->length_with_defaults_and_validations
+                @keys >= keys(%required) &&
+                @keys <= (keys(%required) + keys(%optional))
             ) || die "LENGTH DID NOT MATCH\n";
-            
+
             my @components = @{$route->components};
         
             foreach my $i (0 .. $#components) {  
