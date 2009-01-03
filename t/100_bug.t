@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 3;
+use Test::More tests => 4;
 use Test::Path::Router;
 use Path::Router;
 
@@ -12,7 +12,7 @@ my $router = Path::Router->new;
 $router->add_route('/wiki/?:page' => (
     defaults => { 
         controller => 'wiki', 
-        page       => 'HomePage' 
+        page       => 'HomePage',
     }
 ));
 
@@ -40,11 +40,8 @@ is(
     '... got the right URI'
 );
 
-
-
-
-
-
-
-
-
+is(
+    $router->uri_for(controller => 'wiki'),
+    'wiki',
+    'defaults correctly excluded (no trailing slash)',
+);
