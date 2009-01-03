@@ -46,7 +46,7 @@ has 'length' => (
     is      => 'ro', 
     isa     => 'Int',
     lazy    => 1,
-    default => sub { scalar @{(shift)->components} }
+    default => sub { scalar @{(shift)->components} },
 );
 
 has 'target' => (is => 'ro', isa => 'Any', predicate => 'has_target');
@@ -90,7 +90,17 @@ sub length_without_optionals {
 
 sub length_with_defaults_and_validations {
     my $self = shift;
-    (scalar keys %{$self->defaults}) + (scalar keys %{$self->validations})
+    my %seen;
+    $seen{$_}++ for (
+        keys(%{$self->defaults}),
+        keys(%{$self->validations}),
+        map {
+            $self->is_component_variable($_)
+                ? $self->get_component_name($_)
+                : ()
+        } @{$self->components},
+    );
+    scalar keys %seen;
 }
 
 no Moose; 1
