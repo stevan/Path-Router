@@ -1,5 +1,11 @@
 Revision history for Perl extension Path::Router
 
+0.05 Sat. January 3, 2009
+    * Path::Router
+      - refinements to match correctly in more uri_for edge cases
+    * Test::Path::Router
+      - minor display improvements
+
 0.04 Fri. January 2, 2009
     * Path::Router
       - fix uri_for to return undef on match failure instead of ''
