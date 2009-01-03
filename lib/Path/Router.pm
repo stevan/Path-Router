@@ -124,10 +124,20 @@ sub uri_for {
             
             my %reverse_url_map = reverse %url_map;
 
-            warn "> Attempting to match ", $route->path, " to (", (join " / " => @keys), ")" if $DEBUG;                
+            if ($DEBUG) {
+                warn "> Attempting to match ", $route->path, " to (", (join " / " => @keys), ")";
+                my $keys = @keys;
+                my $length = $route->length;
+                my $length_wo = $route->length_without_optionals;
+                my $length_dv = $route->length_with_defaults_and_validations;
+                warn "keys ($keys) <=> length ($length)";
+                warn "keys ($keys) <=> length_wo ($length_wo)";
+                warn "keys ($keys) <=> length_dv ($length_dv)";
+            }
             
             (
                 scalar @keys == $route->length ||
+                scalar @keys == $route->length_without_optionals ||
                 scalar @keys == $route->length_with_defaults_and_validations
             ) || die "LENGTH DID NOT MATCH\n";
             
@@ -150,9 +160,11 @@ sub uri_for {
                     }
 
                     push @url => $url_map{$name}
-                        unless $route->is_component_optional($components[$i]) && 
-                               $route->defaults->{$name}                      &&
-                               $route->defaults->{$name} eq $url_map{$name};
+                        unless
+                        $route->is_component_optional($components[$i]) && 
+                        $route->defaults->{$name}                      &&
+                        defined $url_map{$name}                        &&
+                        $route->defaults->{$name} eq $url_map{$name};
                     
                     warn "\t\t... removing $name from url map" if $DEBUG;
                     
@@ -163,10 +175,11 @@ sub uri_for {
                     
                     push @url => $components[$i];
                     
-                    warn "\t\t... removing constant ", $components[$i], " at key ", $reverse_url_map{$components[$i]}, " from url map" if $DEBUG;
+                    if (exists $reverse_url_map{$components[$i]}) {
+                        warn "\t\t... removing constant ", $components[$i], " at key ", $reverse_url_map{$components[$i]}, " from url map" if $DEBUG;
                     
-                    delete $url_map{$reverse_url_map{$components[$i]}}
-                        if $reverse_url_map{$components[$i]};                        
+                        delete $url_map{$reverse_url_map{$components[$i]}};
+                    }
                         
                 }                    
                 
