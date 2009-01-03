@@ -84,8 +84,8 @@ mapping_is(
         controller => 'root',
         name       => 'world',
     },
-    undef,
-    'do not match with missing default variable',
+    'world',
+    'match with partial defaults',
 );
 
 mapping_is(
