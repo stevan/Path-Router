@@ -185,13 +185,6 @@ sub uri_for {
                     warn "\t\t... found a constant (", $components[$i], ")" if $DEBUG;
                     
                     push @url => $components[$i];
-                    
-                    if (exists $reverse_url_map{$components[$i]}) {
-                        warn "\t\t... removing constant ", $components[$i], " at key ", $reverse_url_map{$components[$i]}, " from url map" if $DEBUG;
-                    
-                        delete $url_map{$reverse_url_map{$components[$i]}};
-                    }
-                        
                 }                    
                 
                 warn "+++ URL so far ... ", (join "/" => @url) if $DEBUG;
