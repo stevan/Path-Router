@@ -54,6 +54,14 @@ $router->add_route('blog/:action/:id' => (
     }
 ));
 
+$router->add_route('test/?:x/?:y' => (
+    defaults => {
+        controller => 'test',
+        x          => 'x',
+        y          => 'y',
+    },
+));
+
 # create some tests
 
 routes_ok($router, {
@@ -99,9 +107,13 @@ routes_ok($router, {
         action     => 'delete',
         id         => 5,
     },        
+    'test/x1' => {
+        controller => 'test',
+        x          => 'x1',
+        y          => 'y',
+    },
 },
 "... our routes are solid");
-
 
 1;
 
