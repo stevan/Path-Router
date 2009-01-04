@@ -47,8 +47,8 @@ sub match {
             
             # they must be the same length
             (
-                scalar(@parts) == $route->length ||
-                scalar(@parts) == $route->length_without_optionals
+                scalar(@parts) >= $route->length_without_optionals &&
+                scalar(@parts) <= $route->length 
             ) || die "LENGTHS DID NOT MATCH\n";
                 
             warn "\t... They are the same length" if $DEBUG;
