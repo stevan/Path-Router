@@ -113,6 +113,11 @@ sub match {
 
 sub uri_for {
     my ($self, %orig_url_map) = @_;
+
+    # anything => undef is useless; ignore it and let the defaults override it
+    for (keys %orig_url_map) {
+        delete $orig_url_map{$_} unless defined $orig_url_map{$_};
+    }
     
     foreach my $route (@{$self->routes}) {
         my @url;
@@ -140,11 +145,6 @@ sub uri_for {
             # in the url, so they need to match exactly rather than being
             # filled in
 
-            # make sure that a (key => undef) passed in is overridden by the
-            # defaults
-            for (keys %url_map) {
-                delete $url_map{$_} unless defined $url_map{$_};
-            }
             %url_map = (%url_defaults, %url_map);
 
             my @keys = keys %url_map;
