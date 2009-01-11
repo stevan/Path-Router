@@ -1,7 +1,7 @@
 package Path::Router::Route::Match;
 use Moose;
 
-our $VERSION   = '0.05';
+our $VERSION   = '0.06';
 our $AUTHORITY = 'cpan:STEVAN';
 
 has 'path'    => (is => 'ro', isa => 'Str',     required => 1);

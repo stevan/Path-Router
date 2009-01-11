@@ -1,5 +1,10 @@
 Revision history for Perl extension Path::Router
 
+0.06 Sat. January 10, 2009
+    * Path::Router
+      - fix bug with >1 optional path component
+      - simplify and completely redo uri_for matching
+
 0.05 Sat. January 3, 2009
     * Path::Router
       - refinements to match correctly in more uri_for edge cases
