@@ -29,86 +29,15 @@ sub add_route {
 sub match {
     my ($self, $url) = @_;
     
-    my @parts = grep { $_ } split '/' => File::Spec::Unix->canonpath($url);
+    my @parts = grep { defined $_ and length $_ }
+        split '/' => File::Spec::Unix->canonpath($url);
     
-    foreach my $route (@{$self->routes}) {
-        my $mapping;
-        
-        eval {           
-            
-            warn "> Attempting to match ", $route->path, " to (", (join " / " => @parts), ")" if $DEBUG;
-            
-            if ($DEBUG) {
-                warn "parts length: " . scalar @parts;
-                warn "route length: " . $route->length;                
-                warn "route length w/out optionals: " . $route->length_without_optionals;
-                warn join ", " => @{$route->components};
-            }
-            
-            # they must be the same length
-            (
-                scalar(@parts) >= $route->length_without_optionals &&
-                scalar(@parts) <= $route->length 
-            ) || die "LENGTHS DID NOT MATCH\n";
-                
-            warn "\t... They are the same length" if $DEBUG;
-        
-            my @components = @{$route->components};
-            
-            if ($route->has_defaults) {
-                warn "\t... ", $route->path, " has a guide" if $DEBUG;
-                $mapping = $route->create_default_mapping;
-            }
-        
-            foreach my $i (0 .. $#components) {
-                
-                if (!defined $parts[$i] && $route->is_component_optional($components[$i])) {
-                    next;
-                }
-                
-                # if it is a variable (starts with a colon)
-                if ($route->is_component_variable($components[$i])) {
-                    my $name = $route->get_component_name($components[$i]);
-                    
-                    warn "\t\t... mapped ", $components[$i], " to ", $parts[$i] if $DEBUG;
-                    
-                    if (my $type = $route->has_validation_for($name)) {
-                        
-                        warn "\t\t\t... checking validation for $name against ", $type->name ," and ", $parts[$i] if $DEBUG;                            
-                        
-                        $type->check($parts[$i]) || die "VALIDATION DID NOT PASS\n";
-                        
-                        warn "\t\t\t\t... validation passed for $name with ", $parts[$i] if $DEBUG;
-                    }
-                    
-                    $mapping->{$name} = $parts[$i];
-                }
-                else {
-                    warn "\t\t... found a constant (", $components[$i], ")" if $DEBUG;
-                    
-                    ($components[$i] eq $parts[$i]) || die "CONSTANT DID NOT MATCH\n";
-                    
-                    warn "\t\t\t... constant matched" if $DEBUG;
-                }
-            }
-        
-        };
-        unless ($@) {
-            warn "+ ", $route->path, " matched ", $url if $DEBUG;
-            
-            return Path::Router::Route::Match->new(
-                path    => (join "/" => @parts),
-                route   => $route,
-                mapping => $mapping || {},
-            );
-        }
-        else {
-            warn "~ got an exception here : ", $@ if $DEBUG;
-            warn "\t- ", $route->path, " did not match ", $url, " because ", $@ if $DEBUG;
-        }
-        
+    for my $route (@{$self->routes}) {
+        my $match = $route->match(\@parts) or next;
+        return $match;
     }
-    
+
+    return;
 }
 
 sub uri_for {

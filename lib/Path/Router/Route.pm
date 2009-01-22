@@ -49,6 +49,16 @@ has 'length' => (
     default => sub { scalar @{(shift)->components} },
 );
 
+has 'length_without_optionals' => (
+    is      => 'ro',
+    isa     => 'Int',
+    lazy    => 1,
+    default => sub {
+        scalar grep { ! $_[0]->is_component_optional($_) }
+            @{ $_[0]->components }
+    },
+);
+
 has 'required_variable_component_names' => (
     is         => 'ro',
     isa        => 'ArrayRef[Str]',
@@ -117,11 +127,43 @@ sub get_component_name {
     return $name;
 }
 
-# various types of lenths we need
+sub match {
+    my ($self, $parts) = @_;
 
-sub length_without_optionals {
-    my $self = shift;
-    scalar grep { !$self->is_component_optional($_) } @{$self->components}
+    return unless (
+        @$parts >= $self->length_without_optionals &&
+        @$parts <= $self->length
+    );
+
+    my @parts = @$parts; # for shifting
+
+    my $mapping = $self->has_defaults ? $self->create_default_mapping : {};
+
+    for my $c (@{ $self->components }) {
+        unless (@parts) {
+            die "should never get here: " .
+                "no \@parts left, but more required components remain"
+                if ! $self->is_component_optional($c);
+            last;
+        }
+        my $part = shift @parts;
+
+        if ($self->is_component_variable($c)) {
+            my $name = $self->get_component_name($c);
+            if (my $v = $self->has_validation_for($name)) {
+                return unless $v->check($part);
+            }
+            $mapping->{$name} = $part;
+        } else {
+            return unless $c eq $part;
+        }
+    }
+
+    return Path::Router::Route::Match->new(
+        path    => join ('/', @parts),
+        route   => $self,
+        mapping => $mapping,
+    );
 }
 
 __PACKAGE__->meta->make_immutable;
@@ -174,6 +216,8 @@ introspect them.
 =over 4
 
 =item B<create_default_mapping>
+
+=item B<match>
 
 =back
 
