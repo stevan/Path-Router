@@ -1,5 +1,9 @@
 Revision history for Perl extension Path::Router
 
+0.07 Mon. February 2, 2009
+    * tests
+      - do not run pod tests unless testing a release
+
 0.06 Sat. January 10, 2009
     * Path::Router
       - fix bug with >1 optional path component

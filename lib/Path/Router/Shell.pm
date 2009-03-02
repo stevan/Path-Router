@@ -4,7 +4,7 @@ use Moose;
 use Term::ReadLine;
 use Data::Dumper;
 
-our $VERSION   = '0.06';
+our $VERSION   = '0.07';
 our $AUTHORITY = 'cpan:STEVAN';
 
 has 'router' => (
