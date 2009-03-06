@@ -10,12 +10,19 @@ use Path::Router::Types;
 use Path::Router::Route;
 use Path::Router::Route::Match;
 
-our $DEBUG = 0;
+use constant DEBUG => exists $ENV{PATH_ROUTER_DEBUG} ? $ENV{PATH_ROUTER_DEBUG} : 0;
 
 has 'routes' => (
     is      => 'ro', 
     isa     => 'ArrayRef[Path::Router::Route]',
     default => sub { [] },
+);
+
+has 'inline' => (
+    is      => 'rw',
+    isa     => 'Bool',
+    default => 1,
+    trigger => sub { $_[0]->clear_match_code }
 );
 
 has 'match_code' => (
@@ -35,10 +42,14 @@ sub _build_match_code {
     }
 
     my $code = "sub {\n" .
+        "#line " . __LINE__ . ' "' . __FILE__ . "\"\n" .
         "   my \$self = shift;\n" .
         "   my \$path = shift;\n" .
+        "   my \$routes = \$self->routes;\n" .
 # "print STDERR \"Matching \$path\\n\";\n" .
         join("\n", @code) .
+        "#line " . __LINE__ . ' "' . __FILE__ . "\"\n" .
+        "   print STDERR \"match failed\\n\" if DEBUG();\n" .
         "   return ();\n" .
         "}"
     ;
@@ -77,9 +88,21 @@ sub insert_route {
 
 sub match {
     my ($self, $url) = @_;
-    my $canonpath = File::Spec::Unix->canonpath($url);
-    $canonpath =~ s/^\///;
-    $self->match_code->($self, $canonpath);
+
+    if ($self->inline) {
+        my $canonpath = File::Spec::Unix->canonpath($url);
+        $canonpath =~ s/^\///;
+        return $self->match_code->($self, $canonpath);
+    } else {
+        my @parts = grep { defined $_ and length $_ }
+            split '/' => File::Spec::Unix->canonpath($url);
+    
+        for my $route (@{$self->routes}) {
+            my $match = $route->match(\@parts) or next;
+            return $match;
+        }
+    }
+    return;
 }
 
 sub uri_for {
@@ -120,7 +143,7 @@ sub uri_for {
 
             my @keys = keys %url_map;
 
-            if ($DEBUG) {
+            if (DEBUG) {
                 warn "> Attempting to match ", $route->path, " to (", (join " / " => @keys), ")";
             }
             (
@@ -129,27 +152,27 @@ sub uri_for {
             ) || die "LENGTH DID NOT MATCH\n";
 
             if (my @missing = grep { ! exists $url_map{$_} } keys %required) {
-                warn "missing: @missing" if $DEBUG;
+                warn "missing: @missing" if DEBUG;
                 die "MISSING ITEM [@missing]\n";
             }
 
             if (my @extra = grep {
                     ! $required{$_} && ! $optional{$_} && ! $match{$_}
                 } keys %url_map) {
-                warn "extra: @extra" if $DEBUG;
+                warn "extra: @extra" if DEBUG;
                 die "EXTRA ITEM [@extra]\n";
             }
 
             if (my @nomatch = grep {
                     exists $url_map{$_} and $url_map{$_} ne $match{$_}
                 } keys %match) {
-                warn "no match: @nomatch" if $DEBUG;
+                warn "no match: @nomatch" if DEBUG;
                 die "NO MATCH [@nomatch]\n";
             }
 
             for my $component (@{$route->components}) {
                 if ($route->is_component_variable($component)) {
-                    warn "\t\t... found a variable ($component)" if $DEBUG;
+                    warn "\t\t... found a variable ($component)" if DEBUG;
                     my $name = $route->get_component_name($component);
                     
                     push @url => $url_map{$name}
@@ -161,12 +184,12 @@ sub uri_for {
                 }
 
                 else {
-                    warn "\t\t... found a constant ($component)" if $DEBUG;
+                    warn "\t\t... found a constant ($component)" if DEBUG;
                     
                     push @url => $component;
                 }                    
                 
-                warn "+++ URL so far ... ", (join "/" => @url) if $DEBUG;
+                warn "+++ URL so far ... ", (join "/" => @url) if DEBUG;
             }
             
         };
@@ -177,7 +200,7 @@ sub uri_for {
             do {
                 warn join "/" => @url;
                 warn "... ", $@;
-            } if $DEBUG;
+            } if DEBUG;
         }
         
     }

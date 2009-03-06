@@ -127,6 +127,45 @@ sub get_component_name {
     return $name;
 }
 
+sub match {
+    my ($self, $parts) = @_;
+
+    return unless (
+        @$parts >= $self->length_without_optionals &&
+        @$parts <= $self->length
+    );
+
+    my @parts = @$parts; # for shifting
+
+    my $mapping = $self->has_defaults ? $self->create_default_mapping : {};
+
+    for my $c (@{ $self->components }) {
+        unless (@parts) {
+            die "should never get here: " .
+                "no \@parts left, but more required components remain"
+                if ! $self->is_component_optional($c);
+            last;
+        }
+        my $part = shift @parts;
+
+        if ($self->is_component_variable($c)) {
+            my $name = $self->get_component_name($c);
+            if (my $v = $self->has_validation_for($name)) {
+                return unless $v->check($part);
+            }
+            $mapping->{$name} = $part;
+        } else {
+            return unless $c eq $part;
+        }
+    }
+
+    return Path::Router::Route::Match->new(
+        path    => join ('/', @$parts),
+        route   => $self,
+        mapping => $mapping,
+    );
+}
+
 sub generate_match_code {
     my $self = shift;
     my $pos = shift;
@@ -157,7 +196,9 @@ sub generate_match_code {
     }
 
     my $code = "#line " . __LINE__ . ' "' . __FILE__ . "\"\n" .
-        " if (\$path =~ /^$regexp\$/) {\n# " . $self->path . "\n"
+        "print STDERR \"Attempting to match " . $self->path . " against \$path\\n\" if Path::Router::DEBUG();\n" .
+        "print STDERR \"   regexp is $regexp\\n\" if Path::Router::DEBUG();\n" .
+        "if (\$path =~ /^$regexp\$/) {\n# " . $self->path . "\n"
     ;
     if (@variables) {
         $code .= "    my %captures = (\n";
@@ -169,7 +210,7 @@ sub generate_match_code {
         $code .= "    );\n";
     }
     $code .=
-        "    my \$route = \$self->routes->[$pos];\n" .
+        "    my \$route = \$routes->[$pos];\n" .
         "    my \$mapping = \$route->has_defaults ? \$route->create_default_mapping : {};\n" .
         "    my \$valid = 1;\n"
     ;
@@ -179,6 +220,7 @@ sub generate_match_code {
             "        next unless defined \$value && length \$value;\n" .
             "        if (my \$v = \$route->has_validation_for(\$key)) {\n" .
             "            if (! \$v->check(\$value) ) {\n" .
+            "                print STDERR \"\$key failed validation\\n\" if Path::Router::DEBUG;\n" .
             "                \$valid = 0;\n" .
             "            }\n" .
             "        }\n" .
@@ -189,6 +231,7 @@ sub generate_match_code {
     }
     $code .=
         "    if (\$valid) {\n" .
+        "        print STDERR \"match success\\n\" if Path::Router::DEBUG();\n" .
         "        return Path::Router::Route::Match->new(\n" .
         "            path => \$path,\n" .
         "            route => \$route,\n" .
@@ -250,6 +293,8 @@ introspect them.
 =over 4
 
 =item B<create_default_mapping>
+
+=item B<match>
 
 =item B<generate_match_code>
 
