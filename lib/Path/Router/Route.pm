@@ -127,43 +127,77 @@ sub get_component_name {
     return $name;
 }
 
-sub match {
-    my ($self, $parts) = @_;
+sub generate_match_code {
+    my $self = shift;
+    my $pos = shift;
+    my @regexp;
+    my @variables;
 
-    return unless (
-        @$parts >= $self->length_without_optionals &&
-        @$parts <= $self->length
-    );
-
-    my @parts = @$parts; # for shifting
-
-    my $mapping = $self->has_defaults ? $self->create_default_mapping : {};
-
-    for my $c (@{ $self->components }) {
-        unless (@parts) {
-            die "should never get here: " .
-                "no \@parts left, but more required components remain"
-                if ! $self->is_component_optional($c);
-            last;
-        }
-        my $part = shift @parts;
-
+    foreach my $c (@{$self->components}) {
+        my $re;
         if ($self->is_component_variable($c)) {
-            my $name = $self->get_component_name($c);
-            if (my $v = $self->has_validation_for($name)) {
-                return unless $v->check($part);
-            }
-            $mapping->{$name} = $part;
+            $re = "([^\\/]+)";
+            push @variables, $self->get_component_name($c);
         } else {
-            return unless $c eq $part;
+            $re = $c;
+            $re =~ s/([()])/\\$1/g;
         }
+        $re = "\\/$re";
+        if ($self->is_component_optional($c)) {
+            $re = "(?:$re)?";
+        }
+
+        push @regexp, $re;
     }
 
-    return Path::Router::Route::Match->new(
-        path    => join ('/', @$parts),
-        route   => $self,
-        mapping => $mapping,
-    );
+    $regexp[0] =~ s/^\\\///;
+    my $regexp = '';
+    while (my $piece = pop @regexp) {
+        $regexp = "(?:$piece$regexp)";
+    }
+
+    my $code = "#line " . __LINE__ . ' "' . __FILE__ . "\"\n" .
+        " if (\$path =~ /^$regexp\$/) {\n# " . $self->path . "\n"
+    ;
+    if (@variables) {
+        $code .= "    my %captures = (\n";
+        foreach my $i (0..$#variables) {
+            my $name = $variables[$i];
+            $name =~ s/'/\\'/g;
+            $code .= "        '$name' => \$" . ($i + 1) . " || '',\n";
+        }
+        $code .= "    );\n";
+    }
+    $code .=
+        "    my \$route = \$self->routes->[$pos];\n" .
+        "    my \$mapping = \$route->has_defaults ? \$route->create_default_mapping : {};\n" .
+        "    my \$valid = 1;\n"
+    ;
+    if (@variables) {
+        $code .=
+            "    while(my(\$key, \$value) = each \%captures) {\n" .
+            "        next unless defined \$value && length \$value;\n" .
+            "        if (my \$v = \$route->has_validation_for(\$key)) {\n" .
+            "            if (! \$v->check(\$value) ) {\n" .
+            "                \$valid = 0;\n" .
+            "            }\n" .
+            "        }\n" .
+# "print \"Setting \$key to \$value\\n\";\n" .
+            "        \$mapping->{\$key} = \$value;\n" .
+            "    }\n"
+        ;
+    }
+    $code .=
+        "    if (\$valid) {\n" .
+        "        return Path::Router::Route::Match->new(\n" .
+        "            path => \$path,\n" .
+        "            route => \$route,\n" .
+        "            mapping => \$mapping,\n" .
+        "       );\n" .
+        "    }\n" .
+        "}\n";
+
+    return $code;
 }
 
 __PACKAGE__->meta->make_immutable;
@@ -217,7 +251,7 @@ introspect them.
 
 =item B<create_default_mapping>
 
-=item B<match>
+=item B<generate_match_code>
 
 =back
 

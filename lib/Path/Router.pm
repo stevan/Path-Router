@@ -18,12 +18,41 @@ has 'routes' => (
     default => sub { [] },
 );
 
+has 'match_code' => (
+    is      => 'rw',
+    isa     => 'CodeRef',
+    lazy_build => 1,
+    clearer => 'clear_match_code'
+);
+
+sub _build_match_code {
+    my $self = shift;
+
+    my @code;
+    my $i = 0;
+    foreach my $route (@{$self->routes}) {
+        push @code, $route->generate_match_code($i++);
+    }
+
+    my $code = "sub {\n" .
+        "   my \$self = shift;\n" .
+        "   my \$path = shift;\n" .
+# "print STDERR \"Matching \$path\\n\";\n" .
+        join("\n", @code) .
+        "   return ();\n" .
+        "}"
+    ;
+# print STDERR $code;
+    eval $code or warn $@;
+}
+
 sub add_route {
     my ($self, $path, %options) = @_;
     push @{$self->routes} => Path::Router::Route->new(
         path  => $path, 
         %options
     );
+    $self->clear_match_code;
 }
 
 sub insert_route {
@@ -43,20 +72,14 @@ sub insert_route {
     } else {
         splice @$routes, $at, 0, $route;
     }
+    $self->clear_match_code;
 }
 
 sub match {
     my ($self, $url) = @_;
-    
-    my @parts = grep { defined $_ and length $_ }
-        split '/' => File::Spec::Unix->canonpath($url);
-    
-    for my $route (@{$self->routes}) {
-        my $match = $route->match(\@parts) or next;
-        return $match;
-    }
-
-    return;
+    my $canonpath = File::Spec::Unix->canonpath($url);
+    $canonpath =~ s/^\///;
+    $self->match_code->($self, $canonpath);
 }
 
 sub uri_for {
