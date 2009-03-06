@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 14;
+use Test::More tests => 17;
 use Test::Path::Router;
 
 use Moose::Util::TypeConstraints;
@@ -25,13 +25,6 @@ can_ok($router, 'uri_for');
 
 # create some routes
 
-$router->add_route('blog' => (
-    defaults       => {
-        controller => 'blog',
-        action     => 'index',
-    }
-));
-
 $router->add_route('blog/:year/:month/:day' => (
     defaults       => {
         controller => 'blog',
@@ -44,7 +37,18 @@ $router->add_route('blog/:year/:month/:day' => (
     }
 ));
 
-$router->add_route('blog/:action/:id' => (
+# This used to be added at the very beginning, but we're putting it here
+# to test insert_route
+$router->insert_route('blog' => (
+    defaults       => {
+        controller => 'blog',
+        action     => 'index',
+    }
+));
+
+# This used to be added as the second argument, but we're... see above.
+$router->insert_route( 'blog/:action/:id' => (
+    at => 2,
     defaults       => {
         controller => 'blog',
     }, 
@@ -54,7 +58,9 @@ $router->add_route('blog/:action/:id' => (
     }
 ));
 
-$router->add_route('test/?:x/?:y' => (
+# This used to be added as the last argument, but we're... see above.
+$router->insert_route('test/?:x/?:y' => (
+    at => 1_000_000,
     defaults => {
         controller => 'test',
         x          => 'x',
@@ -62,7 +68,13 @@ $router->add_route('test/?:x/?:y' => (
     },
 ));
 
+
 # create some tests
+
+# check to make sure that "blog" is at the front
+is( $router->routes->[0]->path, 'blog', "first route is 'blog'");
+is( $router->routes->[2]->path, 'blog/:action/:id', "3rd route is 'blog/:action/:id'");
+is( $router->routes->[3]->path, 'test/?:x/?:y', "4th route is 'test/?:x/?:y'");
 
 routes_ok($router, {
     # blog

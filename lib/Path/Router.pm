@@ -26,6 +26,25 @@ sub add_route {
     );
 }
 
+sub insert_route {
+    my ($self, $path, %options) = @_;
+    my $at = delete $options{at} || 0;
+
+    my $route = Path::Router::Route->new(
+        path  => $path, 
+        %options
+    );
+    my $routes = $self->routes;
+
+    if (! $at) {
+        unshift @$routes, $route;
+    } elsif ($#{$routes} < $at) {
+        push @$routes, $route;
+    } else {
+        splice @$routes, $at, 0, $route;
+    }
+}
+
 sub match {
     my ($self, $url) = @_;
     
@@ -259,6 +278,34 @@ It is in Perl :)
 =item B<new>
 
 =item B<add_route ($path, ?%options)>
+
+Adds a new route to the I<end> of the routes list.
+
+=item B<insert_route ($path, %options)>
+
+Adds a new route to the routes list. You may specify an C<at> parameter, which would indicate the position where you want to insert your newly created route. The C<at> parameter is the C<index> position in the list, so it starts at 0.
+
+Examples:
+
+    # You have more than three paths, insert a new route at
+    # the 4th item 
+    $router->insert_route($path => (
+        at => 3,
+        %options
+    ) );
+
+    # If you have less items than the index, then it's the same as
+    # as add_route -- it's just appended to the end of the list
+    $router->insert_route($path => (
+        at => 1_000_000,
+        %options
+    ) );
+
+    # If you want to prepend, omit "at", or specify 0
+    $router->insert_Route($path => (
+        at => 0,
+        %optiosn
+    ) );
 
 =item B<routes>
 
