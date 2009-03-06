@@ -49,6 +49,8 @@ sub routes_ok {
         my $match = $router->match($path);
         my $generated_mapping = $match && $match->mapping;
 
+        $Test->ok( $match->path eq $path, "matched path and requested paths match" );
+
         # the path supplied produces the
         # same match as the hash supplied
 

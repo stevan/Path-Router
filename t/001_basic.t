@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 6;
+use Test::More tests => 14;
 use Test::Path::Router;
 
 use Moose::Util::TypeConstraints;
