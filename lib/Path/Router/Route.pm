@@ -160,7 +160,7 @@ sub match {
     }
 
     return Path::Router::Route::Match->new(
-        path    => join ('/', @parts),
+        path    => join ('/', @$parts),
         route   => $self,
         mapping => $mapping,
     );
