@@ -198,7 +198,8 @@ sub generate_match_code {
     my $code = "#line " . __LINE__ . ' "' . __FILE__ . "\"\n" .
         "print STDERR \"Attempting to match " . $self->path . " against \$path\\n\" if Path::Router::DEBUG();\n" .
         "print STDERR \"   regexp is $regexp\\n\" if Path::Router::DEBUG();\n" .
-        "if (\$path =~ /^$regexp\$/) {\n# " . $self->path . "\n"
+        "if (\$path =~ /^$regexp\$/) {\n" .
+        "    # " . $self->path . "\n"
     ;
     if (@variables) {
         $code .= "    my %captures = (\n";
@@ -216,7 +217,7 @@ sub generate_match_code {
     ;
     if ($self->has_defaults) {
         $code .=
-            "    my \$mapping = \$route->create_default_mapping\n";
+            "    my \$mapping = \$route->create_default_mapping;\n";
         ;
     } else {
         $code .=
