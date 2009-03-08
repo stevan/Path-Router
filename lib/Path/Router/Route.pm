@@ -232,11 +232,11 @@ sub generate_match_code {
     $code .=
         "    if (\$valid) {\n" .
         "        print STDERR \"match success\\n\" if Path::Router::DEBUG();\n" .
-        "        return Path::Router::Route::Match->new(\n" .
+        "        return bless({\n" .
         "            path => \$path,\n" .
         "            route => \$route,\n" .
         "            mapping => \$mapping,\n" .
-        "       );\n" .
+        "        }, 'Path::Router::Route::Match');\n" .
         "    }\n" .
         "}\n";
 
