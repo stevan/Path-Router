@@ -216,15 +216,28 @@ sub generate_match_code {
     ;
     if (@variables) {
         $code .=
+            "    my \$validations = \$route->validations;\n" .
             "    while(my(\$key, \$value) = each \%captures) {\n" .
-            "        next unless defined \$value && length \$value;\n" .
-            "        if (my \$v = \$route->has_validation_for(\$key)) {\n" .
-            "            if (! \$v->check(\$value) ) {\n" .
-            "                print STDERR \"\$key failed validation\\n\" if Path::Router::DEBUG;\n" .
-            "                \$valid = 0;\n" .
-            "            }\n" .
-            "        }\n" .
-# "print \"Setting \$key to \$value\\n\";\n" .
+            "        next unless defined \$value && length \$value;\n"
+        ;
+
+        my $if = "if";
+        foreach my $v (@variables) {
+            if ($self->has_validation_for($v)) {
+                $code .= 
+                    "        $if (\$key eq '$v') {\n" .
+                    "            my \$v = \$validations->{$v};\n" .
+                    "            if (! \$v->check(\$value)) {\n" .
+                    "                print STDERR \"$v failed validation\\n\" if Path::Router::DEBUG;\n" .
+                    "                \$valid = 0;\n" .
+                    "            }\n" .
+                    "        }\n"
+                ;
+                $if = "elsif";
+            }
+        }
+
+        $code .=
             "        \$mapping->{\$key} = \$value;\n" .
             "    }\n"
         ;
@@ -238,7 +251,8 @@ sub generate_match_code {
         "            mapping => \$mapping,\n" .
         "        }, 'Path::Router::Route::Match');\n" .
         "    }\n" .
-        "}\n";
+        "}\n"
+    ;
 
     return $code;
 }
