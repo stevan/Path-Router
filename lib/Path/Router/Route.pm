@@ -211,9 +211,19 @@ sub generate_match_code {
     }
     $code .=
         "    my \$route = \$routes->[$pos];\n" .
-        "    my \$mapping = \$route->has_defaults ? \$route->create_default_mapping : {};\n" .
         "    my \$valid = 1;\n"
     ;
+    ;
+    if ($self->has_defaults) {
+        $code .=
+            "    my \$mapping = \$route->create_default_mapping\n";
+        ;
+    } else {
+        $code .=
+            "    my \$mapping =  {};\n"
+        ;
+    }
+
     if (@variables) {
         $code .=
             "    my \$validations = \$route->validations;\n" .
