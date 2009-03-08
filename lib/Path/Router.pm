@@ -46,7 +46,6 @@ sub _build_match_code {
         "   my \$self = shift;\n" .
         "   my \$path = shift;\n" .
         "   my \$routes = \$self->routes;\n" .
-# "print STDERR \"Matching \$path\\n\";\n" .
         join("\n", @code) .
         "#line " . __LINE__ . ' "' . __FILE__ . "\"\n" .
         "   print STDERR \"match failed\\n\" if DEBUG();\n" .
@@ -90,9 +89,15 @@ sub match {
     my ($self, $url) = @_;
 
     if ($self->inline) {
-        my $canonpath = File::Spec::Unix->canonpath($url);
-        $canonpath =~ s/^\///;
-        return $self->match_code->($self, $canonpath);
+        $url =~ s|/{2,}|/|g;                            # xx////xx  -> xx/xx
+        $url =~ s{(?:/\.)+(?:/|\z)}{/}g;                # xx/././xx -> xx/xx
+        $url =~ s|^(?:\./)+||s unless $url eq "./";    # ./xx      -> xx
+        $url =~ s|^/(?:\.\./)+|/|;                      # /../../xx -> xx
+        $url =~ s|^/\.\.$|/|;                         # /..       -> /
+        $url =~ s|/\z|| unless $url eq "/";          # xx/       -> xx
+        $url =~ s|^/||; # Path::Router specific. remove first /
+
+        return $self->match_code->($self, $url);
     } else {
         my @parts = grep { defined $_ and length $_ }
             split '/' => File::Spec::Unix->canonpath($url);
