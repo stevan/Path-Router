@@ -1,6 +1,14 @@
 Revision history for Perl extension Path::Router
 
-0.07 Mon. February 2, 2009
+0.07 Tues. Mar. 10, 2009
+    * Path::Router::*
+      - lots of code re-written by Daisuke Maki
+        resulting in an 150% speed increase
+        - matching code is now inlined by default
+          but inlining can be turned off if needed
+    * Path::Router
+      - added insert_route to allow more fine grained
+        control over route ordering (Daisuke Maki)
     * tests
       - do not run pod tests unless testing a release
 

@@ -26,10 +26,10 @@ has 'inline' => (
 );
 
 has 'match_code' => (
-    is      => 'rw',
-    isa     => 'CodeRef',
+    is         => 'rw',
+    isa        => 'CodeRef',
     lazy_build => 1,
-    clearer => 'clear_match_code'
+    clearer    => 'clear_match_code'
 );
 
 sub _build_match_code {
@@ -52,7 +52,7 @@ sub _build_match_code {
         "   return ();\n" .
         "}"
     ;
-# print STDERR $code;
+    # print STDERR $code;
     eval $code or warn $@;
 }
 
@@ -89,12 +89,12 @@ sub match {
     my ($self, $url) = @_;
 
     if ($self->inline) {
-        $url =~ s|/{2,}|/|g;                            # xx////xx  -> xx/xx
-        $url =~ s{(?:/\.)+(?:/|\z)}{/}g;                # xx/././xx -> xx/xx
-        $url =~ s|^(?:\./)+||s unless $url eq "./";    # ./xx      -> xx
-        $url =~ s|^/(?:\.\./)+|/|;                      # /../../xx -> xx
+        $url =~ s|/{2,}|/|g;                          # xx////xx  -> xx/xx
+        $url =~ s{(?:/\.)+(?:/|\z)}{/}g;              # xx/././xx -> xx/xx
+        $url =~ s|^(?:\./)+||s unless $url eq "./";   # ./xx      -> xx
+        $url =~ s|^/(?:\.\./)+|/|;                    # /../../xx -> xx
         $url =~ s|^/\.\.$|/|;                         # /..       -> /
-        $url =~ s|/\z|| unless $url eq "/";          # xx/       -> xx
+        $url =~ s|/\z|| unless $url eq "/";           # xx/       -> xx
         $url =~ s|^/||; # Path::Router specific. remove first /
 
         return $self->match_code->($self, $url);
@@ -334,29 +334,28 @@ Adds a new route to the I<end> of the routes list.
 
 =item B<insert_route ($path, %options)>
 
-Adds a new route to the routes list. You may specify an C<at> parameter, which would indicate the position where you want to insert your newly created route. The C<at> parameter is the C<index> position in the list, so it starts at 0.
+Adds a new route to the routes list. You may specify an C<at> parameter, which would 
+indicate the position where you want to insert your newly created route. The C<at> 
+parameter is the C<index> position in the list, so it starts at 0.
 
 Examples:
 
     # You have more than three paths, insert a new route at
     # the 4th item 
     $router->insert_route($path => (
-        at => 3,
-        %options
-    ) );
+        at => 3, %options
+    ));
 
     # If you have less items than the index, then it's the same as
     # as add_route -- it's just appended to the end of the list
     $router->insert_route($path => (
-        at => 1_000_000,
-        %options
-    ) );
+        at => 1_000_000, %options
+    ));
 
     # If you want to prepend, omit "at", or specify 0
     $router->insert_Route($path => (
-        at => 0,
-        %optiosn
-    ) );
+        at => 0, %options
+    ));
 
 =item B<routes>
 
@@ -380,10 +379,9 @@ if no routes match.
 This is still a relatively new module, even though it has been 
 sitting on my drive un-used for over a year now. We are only just 
 now using it at $work, so there still may be bugs lurking. For that
-very reason I have made the C<$DEBUG> variable more accessible 
-so that you can turn on the verbose debug logging with:
-
-  $Path::Router::DEBUG = 1;
+very reason I have made the C<DEBUG> flag more accessible 
+so that you can turn on the verbose debug logging with the 
+C<PATH_ROUTER_DEBUG> environment variable.
 
 And possibly help clear out some bugs lurking in the dark corners
 of this module. 
@@ -400,7 +398,7 @@ Stevan Little E<lt>stevan.little@iinteractive.comE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright 2008 Infinity Interactive, Inc.
+Copyright 2008-2009 Infinity Interactive, Inc.
 
 L<http://www.iinteractive.com>
 
