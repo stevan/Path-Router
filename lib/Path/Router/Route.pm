@@ -1,20 +1,23 @@
 package Path::Router::Route;
 use Moose;
 
-our $VERSION   = '0.07';
+our $VERSION   = '0.08';
 our $AUTHORITY = 'cpan:STEVAN';
 
 use Path::Router::Types;
 
+with 'MooseX::Clone';
+
 has 'path'  => (
-    is       => 'ro', 
-    isa      => 'Str', 
+    is       => 'ro',
+    isa      => 'Str',
     required => 1
 );
 
 has 'defaults' => (
-    is        => 'ro', 
-    isa       => 'HashRef', 
+    traits    => [ 'Copy' ],
+    is        => 'ro',
+    isa       => 'HashRef',
     default   => sub { {} },
     predicate => {
         'has_defaults' => sub {
@@ -24,32 +27,36 @@ has 'defaults' => (
 );
 
 has 'validations' => (
-    is        => 'ro', 
-    isa       => 'Path::Router::Route::ValidationMap', 
+    traits    => [ 'Copy' ],
+    is        => 'ro',
+    isa       => 'Path::Router::Route::ValidationMap',
     coerce    => 1,
     default   => sub { {} },
     predicate => {
         'has_validations' => sub {
             scalar keys %{(shift)->{validations}}
         }
-    }    
+    }
 );
 
 has 'components' => (
-    is      => 'ro', 
+    traits  => [ 'NoClone' ],
+    is      => 'ro',
     isa     => 'ArrayRef[Str]',
     lazy    => 1,
     default => sub { [ grep {$_} split '/' => (shift)->path ] }
 );
 
 has 'length' => (
-    is      => 'ro', 
+    traits  => [ 'NoClone' ],
+    is      => 'ro',
     isa     => 'Int',
     lazy    => 1,
     default => sub { scalar @{(shift)->components} },
 );
 
 has 'length_without_optionals' => (
+    traits  => [ 'NoClone' ],
     is      => 'ro',
     isa     => 'Int',
     lazy    => 1,
@@ -60,18 +67,27 @@ has 'length_without_optionals' => (
 );
 
 has 'required_variable_component_names' => (
+    traits     => [ 'NoClone' ],
     is         => 'ro',
     isa        => 'ArrayRef[Str]',
     lazy_build => 1,
 );
 
 has 'optional_variable_component_names' => (
+    traits     => [ 'NoClone' ],
     is         => 'ro',
     isa        => 'ArrayRef[Str]',
     lazy_build => 1,
 );
 
-has 'target' => (is => 'ro', isa => 'Any', predicate => 'has_target');
+has 'target' => (
+    # let this just get copied, we
+    # assume cloning of this is not
+    # what you would want
+    is        => 'ro',
+    isa       => 'Any',
+    predicate => 'has_target'
+);
 
 sub _build_required_variable_component_names {
     my $self = shift;
@@ -112,18 +128,18 @@ sub has_validation_for {
 # component checking
 
 sub is_component_optional {
-    my ($self, $component) = @_; 
-    $component =~ /^\?\:/;    
+    my ($self, $component) = @_;
+    $component =~ /^\?\:/;
 }
 
 sub is_component_variable {
-    my ($self, $component) = @_; 
-    $component =~ /^\??\:/; 
+    my ($self, $component) = @_;
+    $component =~ /^\??\:/;
 }
 
 sub get_component_name {
     my ($self, $component) = @_;
-    my ($name) = ($component =~ /^\??\:(.*)$/);        
+    my ($name) = ($component =~ /^\??\:(.*)$/);
     return $name;
 }
 
@@ -189,6 +205,8 @@ sub generate_match_code {
         push @regexp, $re;
     }
 
+    $regexp[0] = '' unless defined $regexp[0];
+
     $regexp[0] =~ s/^\\\///;
     my $regexp = '';
     while (my $piece = pop @regexp) {
@@ -235,7 +253,7 @@ sub generate_match_code {
         my $if = "if";
         foreach my $v (@variables) {
             if ($self->has_validation_for($v)) {
-                $code .= 
+                $code .=
                     "        $if (\$key eq '$v') {\n" .
                     "            my \$v = \$validations->{$v};\n" .
                     "            if (! \$v->check(\$value)) {\n" .
@@ -282,7 +300,7 @@ Path::Router::Route - An object to represent a route
 
 =head1 DESCRIPTION
 
-This object is created by L<Path::Router> when you call the 
+This object is created by L<Path::Router> when you call the
 C<add_route> method. In general you won't ever create these objects
 directly, they will be created for you and you may sometimes
 introspect them.
@@ -355,7 +373,7 @@ introspect them.
 
 =head1 BUGS
 
-All complex software has bugs lurking in it, and this module is no 
+All complex software has bugs lurking in it, and this module is no
 exception. If you find a bug please either email me, or add the bug
 to cpan-RT.
 

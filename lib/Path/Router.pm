@@ -1,7 +1,7 @@
 package Path::Router;
 use Moose;
 
-our $VERSION   = '0.07';
+our $VERSION   = '0.08';
 our $AUTHORITY = 'cpan:STEVAN';
 
 use File::Spec::Unix ();
@@ -13,7 +13,7 @@ use Path::Router::Route::Match;
 use constant DEBUG => exists $ENV{PATH_ROUTER_DEBUG} ? $ENV{PATH_ROUTER_DEBUG} : 0;
 
 has 'routes' => (
-    is      => 'ro', 
+    is      => 'ro',
     isa     => 'ArrayRef[Path::Router::Route]',
     default => sub { [] },
 );
@@ -59,7 +59,7 @@ sub _build_match_code {
 sub add_route {
     my ($self, $path, %options) = @_;
     push @{$self->routes} => Path::Router::Route->new(
-        path  => $path, 
+        path  => $path,
         %options
     );
     $self->clear_match_code;
@@ -70,7 +70,7 @@ sub insert_route {
     my $at = delete $options{at} || 0;
 
     my $route = Path::Router::Route->new(
-        path  => $path, 
+        path  => $path,
         %options
     );
     my $routes = $self->routes;
@@ -82,6 +82,18 @@ sub insert_route {
     } else {
         splice @$routes, $at, 0, $route;
     }
+    $self->clear_match_code;
+}
+
+sub include_router {
+    my ($self, $path, $router) = @_;
+
+    ($path eq '' || $path =~ /\/$/)
+        || confess "Path is either empty of ends with a /";
+
+    push @{ $self->routes } => map {
+            $_->clone( path => ($path . $_->path) )
+        } @{ $router->routes };
     $self->clear_match_code;
 }
 
@@ -101,7 +113,7 @@ sub match {
     } else {
         my @parts = grep { defined $_ and length $_ }
             split '/' => File::Spec::Unix->canonpath($url);
-    
+
         for my $route (@{$self->routes}) {
             my $match = $route->match(\@parts) or next;
             return $match;
@@ -117,13 +129,13 @@ sub uri_for {
     for (keys %orig_url_map) {
         delete $orig_url_map{$_} unless defined $orig_url_map{$_};
     }
-    
+
     foreach my $route (@{$self->routes}) {
         my @url;
         eval {
-            
+
             my %url_map = %orig_url_map;
-            
+
             my %reverse_url_map = reverse %url_map;
 
             my %required = map {( $_ => 1 )}
@@ -179,24 +191,24 @@ sub uri_for {
                 if ($route->is_component_variable($component)) {
                     warn "\t\t... found a variable ($component)" if DEBUG;
                     my $name = $route->get_component_name($component);
-                    
+
                     push @url => $url_map{$name}
                         unless
-                        $route->is_component_optional($component) && 
+                        $route->is_component_optional($component) &&
                         $route->defaults->{$name}                 &&
                         $route->defaults->{$name} eq $url_map{$name};
-                    
+
                 }
 
                 else {
                     warn "\t\t... found a constant ($component)" if DEBUG;
-                    
+
                     push @url => $component;
-                }                    
-                
+                }
+
                 warn "+++ URL so far ... ", (join "/" => @url) if DEBUG;
             }
-            
+
         };
         unless ($@) {
             return join "/" => @url;
@@ -207,9 +219,9 @@ sub uri_for {
                 warn "... ", $@;
             } if DEBUG;
         }
-        
+
     }
-    
+
     return undef;
 }
 
@@ -228,18 +240,18 @@ Path::Router - A tool for routing paths
 =head1 SYNOPSIS
 
   my $router = Path::Router->new;
-  
+
   $router->add_route('blog' => (
       defaults => {
           controller => 'blog',
           action     => 'index',
-      }, 
-      # you can provide a fixed "target" 
+      },
+      # you can provide a fixed "target"
       # for a match as well, this can be
       # anything you want it to be ...
       target => My::App->get_controller('blog')->get_action('index')
   ));
-  
+
   $router->add_route('blog/:year/:month/:day' => (
       defaults => {
           controller => 'blog',
@@ -250,29 +262,32 @@ Path::Router - A tool for routing paths
           # ... raw-Regexp refs
           year       => qr/\d{4}/,
           # ... custom Moose types you created
-          month      => 'NumericMonth', 
+          month      => 'NumericMonth',
           # ... Moose anon-subtypes created inline
-          day        => subtype('Int' => where { $_ <= 31 }),        
+          day        => subtype('Int' => where { $_ <= 31 }),
       }
   ));
-  
+
   $router->add_route('blog/:action/?:id' => (
       defaults => {
           controller => 'blog',
       },
       validations => {
-          action  => qr/\D+/,   
+          action  => qr/\D+/,
           id      => 'Int',  # also use plain Moose types too
       }
   ));
-  
+
+  # even include other routers
+  $router->include_router( 'polls/' => $another_router );
+
   # ... in your dispatcher
-  
+
   # returns a Path::Router::Route::Match object
-  my $match = $router->match('/blog/edit/15'); 
-  
+  my $match = $router->match('/blog/edit/15');
+
   # ... in your code
-  
+
   my $uri = $router->uri_for(
       controller => 'blog',
       action     => 'show_date',
@@ -283,42 +298,42 @@ Path::Router - A tool for routing paths
 
 =head1 DESCRIPTION
 
-This module provides a way of deconstructing paths into parameters 
-suitable for dispatching on. It also provides the inverse in that 
-it will take a list of parameters, and construct an appropriate 
-uri for it. 
+This module provides a way of deconstructing paths into parameters
+suitable for dispatching on. It also provides the inverse in that
+it will take a list of parameters, and construct an appropriate
+uri for it.
 
 =head2 Reversable
 
-This module places a high degree of importance on reversability. 
-The value produced by a path match can be passed back in and you 
-will get the same path you originally put in. The result of this 
-is that it removes ambiguity and therefore reduces the number of 
-possible mis-routings. 
+This module places a high degree of importance on reversability.
+The value produced by a path match can be passed back in and you
+will get the same path you originally put in. The result of this
+is that it removes ambiguity and therefore reduces the number of
+possible mis-routings.
 
 =head2 Verifyable
 
-This module also provides additional tools you can use to test 
+This module also provides additional tools you can use to test
 and verify the integrity of your router. These include:
 
 =over 4
 
-=item * 
+=item *
 
-An interactive shell in which you can test various paths and see the 
-match it will return, and also test the reversability of that match. 
+An interactive shell in which you can test various paths and see the
+match it will return, and also test the reversability of that match.
 
-=item * 
+=item *
 
-A L<Test::Path::Router> module which can be used in your applications 
+A L<Test::Path::Router> module which can be used in your applications
 test suite to easily verify the integrity of your paths.
 
 =back
 
 =head2 Hey, wait, this is like RoR!
 
-Yes, this is based on Ruby on Rails ActionController::Routing::Routes, 
-however, it has one important difference. 
+Yes, this is based on Ruby on Rails ActionController::Routing::Routes,
+however, it has one important difference.
 
 It is in Perl :)
 
@@ -334,14 +349,14 @@ Adds a new route to the I<end> of the routes list.
 
 =item B<insert_route ($path, %options)>
 
-Adds a new route to the routes list. You may specify an C<at> parameter, which would 
-indicate the position where you want to insert your newly created route. The C<at> 
+Adds a new route to the routes list. You may specify an C<at> parameter, which would
+indicate the position where you want to insert your newly created route. The C<at>
 parameter is the C<index> position in the list, so it starts at 0.
 
 Examples:
 
     # You have more than three paths, insert a new route at
-    # the 4th item 
+    # the 4th item
     $router->insert_route($path => (
         at => 3, %options
     ));
@@ -356,6 +371,11 @@ Examples:
     $router->insert_Route($path => (
         at => 0, %options
     ));
+
+=item B<include_router ( $path, $other_router )>
+
+These extracts all the route from C<$other_router> and includes them into
+the invocant router and prepends C<$path> to all their paths.
 
 =item B<routes>
 
@@ -376,19 +396,19 @@ if no routes match.
 
 =head1 DEBUGGING
 
-This is still a relatively new module, even though it has been 
-sitting on my drive un-used for over a year now. We are only just 
+This is still a relatively new module, even though it has been
+sitting on my drive un-used for over a year now. We are only just
 now using it at $work, so there still may be bugs lurking. For that
-very reason I have made the C<DEBUG> flag more accessible 
-so that you can turn on the verbose debug logging with the 
+very reason I have made the C<DEBUG> flag more accessible
+so that you can turn on the verbose debug logging with the
 C<PATH_ROUTER_DEBUG> environment variable.
 
 And possibly help clear out some bugs lurking in the dark corners
-of this module. 
+of this module.
 
 =head1 BUGS
 
-All complex software has bugs lurking in it, and this module is no 
+All complex software has bugs lurking in it, and this module is no
 exception. If you find a bug please either email me, or add the bug
 to cpan-RT.
 

@@ -7,12 +7,13 @@ all_from 'lib/Path/Router.pm';
 license 'perl';
 
 # prereqs
-requires 'Moose' => '0.46';
-requires 'File::Spec::Unix';
+requires 'Moose'            => '0.74';
+requires 'MooseX::Clone'    => '0.04';
+requires 'File::Spec::Unix' => 0;
 
 feature 'Path::Router::Shell',
     -default         => 1,
-    'Term::ReadLine' => '0';  
+    'Term::ReadLine' => '0';
 
 # things the tests need
 build_requires 'Test::More'      => '0.62';

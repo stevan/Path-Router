@@ -1,5 +1,11 @@
 Revision history for Perl extension Path::Router
 
+0.08
+    * Path::Router
+      - added the include_router method
+        to allow inclusion of other routers
+        - added testa and docs for this
+
 0.07 Tues. Mar. 10, 2009
     * Path::Router::*
       - lots of code re-written by Daisuke Maki
@@ -35,13 +41,13 @@ Revision history for Perl extension Path::Router
 0.02 Mon. July 14, 2008
     * Path::Router
       - changed DEBUG from a constant sub to $DEBUG
-        a package variable. This is a new module and 
+        a package variable. This is a new module and
         so easy debugability is important.
-        
+
     * Path::Router::Route
       - silly fix to make sure exact paths will match
-        - added tests for this 
+        - added tests for this
 
 0.01 Sat. July 12, 2008
-    - copied Ruby on Rails Router, but make it 
+    - copied Ruby on Rails Router, but make it
       ... better, stronger, faster
