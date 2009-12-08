@@ -11,7 +11,7 @@ BEGIN {
     use_ok('Path::Router');
 }
 
-my $poll_router = Path::Router->new( inline => 0 );
+my $poll_router = Path::Router->new();
 isa_ok($poll_router, 'Path::Router');
 
 # create some routes
@@ -70,7 +70,7 @@ routes_ok($poll_router, {
 
 # root router
 
-my $router = Path::Router->new( inline => 0 );
+my $router = Path::Router->new();
 isa_ok($poll_router, 'Path::Router');
 
 # create some routes
@@ -128,7 +128,7 @@ routes_ok($router, {
 
 # hmm, will this work
 
-my $test_router = Path::Router->new( inline => 0 );
+my $test_router = Path::Router->new();
 isa_ok($test_router, 'Path::Router');
 
 # create some routes

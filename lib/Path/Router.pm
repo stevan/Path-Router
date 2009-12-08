@@ -330,13 +330,6 @@ test suite to easily verify the integrity of your paths.
 
 =back
 
-=head2 Hey, wait, this is like RoR!
-
-Yes, this is based on Ruby on Rails ActionController::Routing::Routes,
-however, it has one important difference.
-
-It is in Perl :)
-
 =head1 METHODS
 
 =over 4
@@ -377,6 +370,11 @@ Examples:
 These extracts all the route from C<$other_router> and includes them into
 the invocant router and prepends C<$path> to all their paths.
 
+It should be noted that this does B<not> do any kind of redispatch to the
+C<$other_router>, it actually extracts all the paths from C<$other_router>
+and inserts them into the invocant router. This means any changes to
+C<$other_router> after inclusion will not be reflected in the invocant.
+
 =item B<routes>
 
 =item B<match ($path)>
@@ -396,15 +394,8 @@ if no routes match.
 
 =head1 DEBUGGING
 
-This is still a relatively new module, even though it has been
-sitting on my drive un-used for over a year now. We are only just
-now using it at $work, so there still may be bugs lurking. For that
-very reason I have made the C<DEBUG> flag more accessible
-so that you can turn on the verbose debug logging with the
-C<PATH_ROUTER_DEBUG> environment variable.
-
-And possibly help clear out some bugs lurking in the dark corners
-of this module.
+You can turn on the verbose debug logging with the C<PATH_ROUTER_DEBUG>
+environment variable.
 
 =head1 BUGS
 
