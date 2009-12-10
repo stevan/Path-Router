@@ -1,4 +1,4 @@
-Path::Router version 0.08
+Path::Router version 0.09
 ===========================
 
 See the individual module documentation for more information
@@ -17,6 +17,7 @@ DEPENDENCIES
 This module requires these other modules and libraries:
 
 	Moose
+	MooseX::Clone
 	File::Spec::Unix
 
 COPYRIGHT AND LICENCE
