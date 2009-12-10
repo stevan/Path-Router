@@ -1,7 +1,7 @@
 package Path::Router::Route;
 use Moose;
 
-our $VERSION   = '0.08';
+our $VERSION   = '0.09';
 our $AUTHORITY = 'cpan:STEVAN';
 
 use Path::Router::Types;

@@ -8,7 +8,7 @@ use Test::Deep    ();
 use Data::Dumper  ();
 use Sub::Exporter;
 
-our $VERSION   = '0.08';
+our $VERSION   = '0.09';
 our $AUTHORITY = 'cpan:STEVAN';
 
 my @exports = qw/
@@ -49,7 +49,7 @@ sub routes_ok {
         my $match = $router->match($path);
         my $generated_mapping = $match && $match->mapping;
 
-        $Test->ok( $match->path eq $path, "matched path and requested paths match" );
+        $Test->ok( $match->path eq $path, "matched path (" . $match->path . ") and requested paths ($path) match" );
 
         # the path supplied produces the
         # same match as the hash supplied
@@ -126,7 +126,7 @@ sub mapping_not_ok {
 
 sub mapping_is {
     my ($router, $mapping, $expected, $message) = @_;
-    
+
     my $generated_path = $router->uri_for(%{$mapping});
 
     # the path generated from the hash
@@ -255,7 +255,7 @@ are roundtrippable, so that you can be confident in them.
 
 =head1 BUGS
 
-All complex software has bugs lurking in it, and this module is no 
+All complex software has bugs lurking in it, and this module is no
 exception. If you find a bug please either email me, or add the bug
 to cpan-RT.
 

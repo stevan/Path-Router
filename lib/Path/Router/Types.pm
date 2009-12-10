@@ -2,7 +2,7 @@ package Path::Router::Types;
 use Moose ();
 use Moose::Util::TypeConstraints;
 
-our $VERSION   = '0.08';
+our $VERSION   = '0.09';
 our $AUTHORITY = 'cpan:STEVAN';
 
 class_type 'Moose::Meta::TypeConstraint';

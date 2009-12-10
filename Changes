@@ -1,5 +1,10 @@
 Revision history for Perl extension Path::Router
 
+0.09
+    * Path::Router
+      - fixing a problem with the path generator
+        and optional parts
+
 0.08 Tues. Dec. 8, 2009
     * Path::Router
       - added the include_router method

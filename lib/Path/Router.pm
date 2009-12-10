@@ -1,7 +1,7 @@
 package Path::Router;
 use Moose;
 
-our $VERSION   = '0.08';
+our $VERSION   = '0.09';
 our $AUTHORITY = 'cpan:STEVAN';
 
 use File::Spec::Unix ();
@@ -211,7 +211,7 @@ sub uri_for {
 
         };
         unless ($@) {
-            return join "/" => @url;
+            return join "/" => grep { defined } @url;
         }
         else {
             do {
