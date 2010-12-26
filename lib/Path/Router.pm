@@ -1,7 +1,7 @@
 package Path::Router;
 use Moose;
 
-our $VERSION   = '0.09';
+our $VERSION   = '0.10';
 our $AUTHORITY = 'cpan:STEVAN';
 
 use File::Spec::Unix ();
@@ -16,6 +16,12 @@ has 'routes' => (
     is      => 'ro',
     isa     => 'ArrayRef[Path::Router::Route]',
     default => sub { [] },
+);
+
+has 'route_class' => (
+    is      => 'ro',
+    isa     => 'ClassName',
+    default => 'Path::Router::Route',
 );
 
 has 'inline' => (
@@ -58,7 +64,7 @@ sub _build_match_code {
 
 sub add_route {
     my ($self, $path, %options) = @_;
-    push @{$self->routes} => Path::Router::Route->new(
+    push @{$self->routes} => $self->route_class->new(
         path  => $path,
         %options
     );
@@ -69,7 +75,7 @@ sub insert_route {
     my ($self, $path, %options) = @_;
     my $at = delete $options{at} || 0;
 
-    my $route = Path::Router::Route->new(
+    my $route = $self->route_class->new(
         path  => $path,
         %options
     );
