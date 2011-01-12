@@ -1,4 +1,4 @@
-Path::Router version 0.09
+Path::Router version 0.10
 ===========================
 
 See the individual module documentation for more information
@@ -24,7 +24,7 @@ COPYRIGHT AND LICENCE
 
 Stevan Little <stevan.little@iinteractive.com>
 
-Copyright 2008-2009 Infinity Interactive, Inc.
+Copyright 2008-2011 Infinity Interactive, Inc.
 
 http://www.iinteractive.com
 

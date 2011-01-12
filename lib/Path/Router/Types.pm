@@ -2,7 +2,7 @@ package Path::Router::Types;
 use Moose ();
 use Moose::Util::TypeConstraints;
 
-our $VERSION   = '0.09';
+our $VERSION   = '0.10';
 our $AUTHORITY = 'cpan:STEVAN';
 
 class_type 'Moose::Meta::TypeConstraint';
@@ -60,7 +60,7 @@ Stevan Little E<lt>stevan.little@iinteractive.comE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright 2008-2009 Infinity Interactive, Inc.
+Copyright 2008-2011 Infinity Interactive, Inc.
 
 L<http://www.iinteractive.com>
 

@@ -1,5 +1,10 @@
 Revision history for Perl extension Path::Router
 
+0.10 Wed. Jan. 12, 2011
+    * Path::Router
+      - route_class attribute, to allow easy subclassing
+        (thanks to Dylan Hardison)
+
 0.09 Thurs. Dec. 10, 2009
     * Path::Router
       - fixing a minor problem with the path
