@@ -4,6 +4,7 @@ use Moose;
 our $VERSION   = '0.10';
 our $AUTHORITY = 'cpan:STEVAN';
 
+use Carp qw(cluck);
 use Path::Router::Types;
 
 with 'MooseX::Clone';
@@ -100,9 +101,9 @@ sub BUILD {
 
     for my $validation (keys %{ $self->validations }) {
         if (!exists $components{$validation}) {
-            warn "Validation provided for component :$validation, but the"
-               . " path " . $self->path . " doesn't contain a variable"
-               . " component with that name";
+            cluck "Validation provided for component :$validation, but the"
+                . " path " . $self->path . " doesn't contain a variable"
+                . " component with that name";
         }
     }
 }
