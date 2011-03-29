@@ -89,6 +89,24 @@ has 'target' => (
     predicate => 'has_target'
 );
 
+sub BUILD {
+    my $self = shift;
+
+    return unless $self->has_validations;
+
+    my %components = map { $self->get_component_name($_) => 1 }
+                     grep { $self->is_component_variable($_) }
+                     @{ $self->components };
+
+    for my $validation (keys %{ $self->validations }) {
+        if (!exists $components{$validation}) {
+            warn "Validation provided for component :$validation, but the"
+               . " path " . $self->path . " doesn't contain a variable"
+               . " component with that name";
+        }
+    }
+}
+
 sub _build_required_variable_component_names {
     my $self = shift;
     return [
