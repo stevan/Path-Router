@@ -306,7 +306,7 @@ sub generate_match_code {
     push @code, (
             'if ($valid) {',
                 'print STDERR "match success\n" if Path::Router::DEBUG();',
-                'return bless({',
+                'push @matches, bless({',
                     'path    => $path,',
                     'route   => $route,',
                     'mapping => $mapping,',

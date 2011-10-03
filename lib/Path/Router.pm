@@ -54,10 +54,19 @@ sub _build_match_code {
                 'my $self = shift;',
                 'my $path = shift;',
                 'my $routes = $self->routes;',
+                'my @matches;',
                 @code,
                 '#line ' . __LINE__ . ' "' . __FILE__ . '"',
-                'print STDERR "match failed\n" if Path::Router::DEBUG();',
-                'return;',
+                'if (@matches == 0) {',
+                    'print STDERR "match failed\n" if Path::Router::DEBUG();',
+                    'return;',
+                '}',
+                'elsif (@matches == 1) {',
+                    'return $matches[0];',
+                '}',
+                'else {',
+                    'return $self->_disambiguate_matches($path, @matches);',
+                '}',
             '}',
         ]
     );
@@ -114,12 +123,40 @@ sub match {
     } else {
         my @parts = split '/' => $url;
 
+        my @matches;
         for my $route (@{$self->routes}) {
             my $match = $route->match(\@parts) or next;
-            return $match;
+            push @matches, $match;
         }
+        return             if @matches == 0;
+        return $matches[0] if @matches == 1;
+        return $self->_disambiguate_matches($url, @matches);
     }
     return;
+}
+
+sub _disambiguate_matches {
+    my $self = shift;
+    my ($path, @matches) = @_;
+
+    my $min;
+    my @found;
+    for my $match (@matches) {
+        my $vars = @{ $match->route->required_variable_component_names };
+        if (!defined($min) || $vars < $min) {
+            @found = ($match);
+            $min = $vars;
+        }
+        elsif ($vars == $min) {
+            push @found, $match;
+        }
+    }
+
+    die "Ambiguous match: path $path could match any of "
+      . join(', ', sort map { $_->route->path } @found)
+        if @found > 1;
+
+    return $found[0];
 }
 
 sub uri_for {

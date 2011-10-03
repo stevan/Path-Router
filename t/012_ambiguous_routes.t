@@ -69,4 +69,17 @@ use Path::Router;
     is($match->mapping->{id}, 2);
 }
 
+{
+    my $router = Path::Router->new;
+
+    $router->add_route('/foo/:bar' => (defaults => { id => 1 }));
+    $router->add_route('/:foo/bar' => (defaults => { id => 2 }));
+
+    like(
+        exception { $router->match('/foo/bar') },
+        qr{^\QAmbiguous match: path foo/bar could match any of /:foo/bar, /foo/:bar},
+        "error when it's actually ambiguous"
+    );
+}
+
 done_testing;
