@@ -95,7 +95,7 @@ sub include_router {
     my ($self, $path, $router) = @_;
 
     ($path eq '' || $path =~ /\/$/)
-        || confess "Path is either empty of ends with a /";
+        || confess "Path is either empty or does not end with /";
 
     push @{ $self->routes } => map {
             $_->clone( path => ($path . $_->path) )
