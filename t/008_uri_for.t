@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 7;
+use Test::More;
 use Test::Path::Router;
 use Path::Router;
 
@@ -97,3 +97,5 @@ mapping_is(
     undef,
     'do not match with missing component variable',
 );
+
+done_testing;

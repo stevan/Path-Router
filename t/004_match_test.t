@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 20;
+use Test::More;
 use Test::Path::Router;
 
 BEGIN {
@@ -74,4 +74,4 @@ path_not_ok($router, $_, '... could not match path (' . $_ . ')')
         /blog/2006/310/1
     ];
 
-1;
+done_testing;

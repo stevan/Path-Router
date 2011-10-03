@@ -1,7 +1,7 @@
 #!/usr/bin/env perl
 use strict;
 use warnings;
-use Test::More tests => 1;
+use Test::More;
 
 use Path::Router;
 
@@ -23,3 +23,5 @@ my $router = Path::Router->new;
         "got a warning"
     );
 }
+
+done_testing;

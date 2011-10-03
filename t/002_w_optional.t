@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 10;
+use Test::More;
 use Test::Path::Router;
 
 BEGIN {
@@ -71,8 +71,4 @@ routes_ok($router, {
 },
 "... our routes are solid");
 
-1;
-
-
-
-
+done_testing;

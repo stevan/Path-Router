@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More 'no_plan';
+use Test::More;
 use Test::Fatal;
 use Test::Path::Router;
 
@@ -217,3 +217,5 @@ isnt(
     undef,
     "... this dies correctly"
 );
+
+done_testing;

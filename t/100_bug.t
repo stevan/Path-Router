@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 4;
+use Test::More;
 use Test::Path::Router;
 use Path::Router;
 
@@ -45,3 +45,5 @@ is(
     'wiki',
     'defaults correctly excluded (no trailing slash)',
 );
+
+done_testing;

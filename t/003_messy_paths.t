@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 11;
+use Test::More;
 use Test::Path::Router;
 #use Data::Dumper;
 
@@ -95,4 +95,4 @@ path_is($router,
     },
 '... this path matches the mapping');
 
-1;
+done_testing;

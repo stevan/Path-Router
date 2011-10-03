@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 29;
+use Test::More;
 use Test::Path::Router;
 
 BEGIN {
@@ -209,3 +209,4 @@ path_not_ok($router, $_, '... ' . $_ . ' is not okay') for qw[
     /plan/5/edit/100
 ];
 
+done_testing;

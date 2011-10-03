@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 8;
+use Test::More;
 use Test::Path::Router;
 
 BEGIN {
@@ -70,4 +70,4 @@ $router->add_route('blog/:action/:id' => (
     is($match->route->target, $GENERAL, '... got the right target');
 }
 
-1;
+done_testing;

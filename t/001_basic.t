@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 17;
+use Test::More;
 use Test::Path::Router;
 
 use Moose::Util::TypeConstraints;
@@ -127,8 +127,4 @@ routes_ok($router, {
 },
 "... our routes are solid");
 
-1;
-
-
-
-
+done_testing;
