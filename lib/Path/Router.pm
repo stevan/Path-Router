@@ -219,7 +219,7 @@ sub uri_for {
         catch {
             do {
                 warn join "/" => @url;
-                warn "... ", $@;
+                warn "... ", $_;
             } if DEBUG;
 
             return;
