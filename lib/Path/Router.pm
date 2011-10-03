@@ -142,8 +142,6 @@ sub uri_for {
 
             my %url_map = %orig_url_map;
 
-            my %reverse_url_map = reverse %url_map;
-
             my %required = map {( $_ => 1 )}
                 @{ $route->required_variable_component_names };
 
