@@ -4,7 +4,7 @@ use strict;
 use warnings;
 
 use Test::More 'no_plan';
-use Test::Exception;
+use Test::Fatal;
 use Test::Path::Router;
 
 BEGIN {
@@ -200,19 +200,20 @@ routes_ok($router, {
 
 # test a few errors
 
-dies_ok {
-    $router->include_router('foo' => $test_router);
-} '... this dies correctly';
+isnt(
+    exception { $router->include_router('foo' => $test_router) },
+    undef,
+    "... this dies correctly"
+);
 
-dies_ok {
-    $router->include_router('/foo' => $test_router);
-} '... this dies correctly';
+isnt(
+    exception { $router->include_router('/foo' => $test_router) },
+    undef,
+    "... this dies correctly"
+);
 
-
-dies_ok {
-    $router->include_router('/foo/1' => $test_router);
-} '... this dies correctly';
-
-
-
-
+isnt(
+    exception { $router->include_router('/foo/1' => $test_router) },
+    undef,
+    "... this dies correctly"
+);
