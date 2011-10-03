@@ -1,4 +1,5 @@
 package Test::Path::Router;
+# ABSTRACT: A testing module for testing routes
 
 use strict;
 use warnings;
@@ -7,9 +8,6 @@ use Test::Builder ();
 use Test::Deep    ();
 use Data::Dumper  ();
 use Sub::Exporter;
-
-our $VERSION   = '0.10';
-our $AUTHORITY = 'cpan:STEVAN';
 
 my @exports = qw/
     routes_ok
@@ -164,10 +162,6 @@ sub _dump_mapping_info {
 __END__
 
 =pod
-
-=head1 NAME
-
-Test::Path::Router - A testing module for testing routes
 
 =head1 SYNOPSIS
 

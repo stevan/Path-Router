@@ -1,8 +1,6 @@
 package Path::Router;
 use Moose;
-
-our $VERSION   = '0.10';
-our $AUTHORITY = 'cpan:STEVAN';
+# ABSTRACT: A tool for routing paths
 
 use File::Spec::Unix ();
 
@@ -237,10 +235,6 @@ __END__
 
 =pod
 
-=head1 NAME
-
-Path::Router - A tool for routing paths
-
 =head1 SYNOPSIS
 
   my $router = Path::Router->new;
@@ -419,5 +413,11 @@ L<http://www.iinteractive.com>
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.
+
+=begin Pod::Coverage
+
+DEBUG
+
+=end Pod::Coverage
 
 =cut

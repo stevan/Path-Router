@@ -7,20 +7,20 @@ use Test::More tests => 29;
 use Test::Path::Router;
 
 BEGIN {
-    use_ok('Path::Router');  
+    use_ok('Path::Router');
 }
 
 =pod
 
-This is an example of using Path::Router to match 
-the URIs from a Catalyst app we recently built at 
-$work which used the Chained dispatch type. It is 
-a test to see how things would translate between 
-the two. 
+This is an example of using Path::Router to match
+the URIs from a Catalyst app we recently built at
+$work which used the Chained dispatch type. It is
+a test to see how things would translate between
+the two.
 
-Below is part of the Catalyst ASCII table which 
-shows all the paths and the actions they take. 
- 
+Below is part of the Catalyst ASCII table which
+shows all the paths and the actions they take.
+
 Loaded Path Part actions:
 .-------------------------------------+--------------------------------------.
 | Path Spec                           | Private                              |
@@ -62,7 +62,7 @@ Loaded Path Part actions:
 +-------------------------------------+--------------------------------------+
 | /plan/*/view                        | /plan/load_plan_from_store (1)       |
 |                                     | => /plan/view                        |
-'-------------------------------------+--------------------------------------' 
+'-------------------------------------+--------------------------------------'
 
 =cut
 
@@ -74,10 +74,10 @@ $router->add_route(':controller');
 $router->add_route('plan/:action' => (
     defaults => {
         controller => 'plan',
-    }, 
+    },
     validations => {
-        action => qr/\D+/    
-    }       
+        action => qr/\D+/
+    }
 ));
 
 $router->add_route('plan/:id/edit/?:edit_action' => (
@@ -88,8 +88,8 @@ $router->add_route('plan/:id/edit/?:edit_action' => (
     },
     validations => {
         id          => qr/\d+/,
-        edit_action => qr/\D+/,         
-    }    
+        edit_action => qr/\D+/,
+    }
 ));
 
 $router->add_route('plan/:id/:action' => (
@@ -97,8 +97,8 @@ $router->add_route('plan/:id/:action' => (
         controller => 'plan'
     },
     validations => {
-        id     => qr/\d+/, 
-        action => qr/\D+/,                    
+        id     => qr/\d+/,
+        action => qr/\D+/,
     }
 ));
 
@@ -108,19 +108,19 @@ routes_ok($router, {
     },
     'access_denied' => {
         controller => 'access_denied'
-    },    
+    },
     'plan' => {
         controller => 'plan'
     },
-    # plan searching       
+    # plan searching
     'plan/search' => {
         controller => 'plan',
         action     => 'search',
-    },    
+    },
     'plan/search_results' => {
         controller => 'plan',
         action     => 'search_results',
-    },    
+    },
     # plan viewing
     'plan/list' => {
         controller => 'plan',
@@ -129,7 +129,7 @@ routes_ok($router, {
     'plan/create' => {
         controller => 'plan',
         action     => 'create',
-    },   
+    },
     'plan/not_found' => {
         controller => 'plan',
         action     => 'not_found',
@@ -137,33 +137,33 @@ routes_ok($router, {
     'plan/wrong_state' => {
         controller => 'plan',
         action     => 'wrong_state',
-    },    
-    # with $id     
+    },
+    # with $id
     'plan/5/view' => {
         controller => 'plan',
         action     => 'view',
         id         => 5,
-    },        
+    },
     'plan/5/delete' => {
         controller => 'plan',
         action     => 'delete',
         id         => 5,
-    }, 
+    },
     'plan/5/confirm' => {
         controller => 'plan',
         action     => 'confirm',
         id         => 5,
-    },       
+    },
     'plan/5/submit' => {
         controller => 'plan',
         action     => 'submit',
         id         => 5,
-    },    
+    },
     'plan/5/unsubmit' => {
         controller => 'plan',
         action     => 'unsubmit',
         id         => 5,
-    },  
+    },
     # editing
     'plan/5/edit' => {
         controller  => 'plan',
@@ -176,36 +176,36 @@ routes_ok($router, {
         action      => 'edit',
         id          => 5,
         edit_action => 'title',
-    },          
+    },
     'plan/5/edit/engagement_framework' => {
         controller  => 'plan',
         action      => 'edit',
         id          => 5,
         edit_action => 'engagement_framework',
-    },    
+    },
     'plan/5/edit/key_drivers' => {
         controller  => 'plan',
         action      => 'edit',
         id          => 5,
         edit_action => 'key_drivers',
-    },    
+    },
     'plan/5/edit/priorities' => {
         controller  => 'plan',
         action      => 'edit',
         id          => 5,
         edit_action => 'priorities',
-    },    
+    },
 },
 "... our routes are solid");
 
 path_not_ok($router, $_, '... ' . $_ . ' is not okay') for qw[
     /index/edit
     /access_denied/5/delete
-    /access_denied/5/delete/foo    
-    
+    /access_denied/5/delete/foo
+
     /plan/5
     /plan/foo/5
     /plan/5/10
-    /plan/5/edit/100  
+    /plan/5/edit/100
 ];
 

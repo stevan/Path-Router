@@ -1,11 +1,9 @@
 package Path::Router::Shell;
 use Moose;
+# ABSTRACT: An interactive shell for testing router configurations
 
 use Term::ReadLine;
 use Data::Dumper;
-
-our $VERSION   = '0.10';
-our $AUTHORITY = 'cpan:STEVAN';
 
 has 'router' => (
     is       => 'ro',
@@ -15,7 +13,7 @@ has 'router' => (
 
 sub shell {
     my $self = shift;
-    
+
     my $term = Term::ReadLine->new(__PACKAGE__);
     my $OUT = $term->OUT || \*STDOUT;
 
@@ -23,7 +21,7 @@ sub shell {
         chomp;
         return if /[qQ]/;
         my $map = $self->router->match($_);
-        if ($map) {        
+        if ($map) {
             print $OUT Dumper $map;
             print $OUT "Round-trip URI is : " . $self->router->uri_for(%$map),
         }
@@ -36,33 +34,29 @@ sub shell {
 
 __PACKAGE__->meta->make_immutable;
 
-no Moose; 1
+no Moose; 1;
 
 __END__
 
 =pod
 
-=head1 NAME
-
-Path::Router::Shell - An interactive shell for testing router configurations
-
 =head1 SYNOPSIS
 
   #!/usr/bin/perl
-  
+
   use strict;
   use warnings;
-  
+
   use My::App::Router;
   use Path::Router::Shell;
-  
+
   Path::Router::Shell->new(router => My::App::Router->new)->shell;
 
 =head1 DESCRIPTION
 
-This is a tool for helping test the routing in your applications, so 
-you simply write a small script like showing in the SYNOPSIS and then 
-you can use it to test new routes or debug routing issues, etc etc etc. 
+This is a tool for helping test the routing in your applications, so
+you simply write a small script like showing in the SYNOPSIS and then
+you can use it to test new routes or debug routing issues, etc etc etc.
 
 =head1 METHODS
 
@@ -80,7 +74,7 @@ you can use it to test new routes or debug routing issues, etc etc etc.
 
 =head1 BUGS
 
-All complex software has bugs lurking in it, and this module is no 
+All complex software has bugs lurking in it, and this module is no
 exception. If you find a bug please either email me, or add the bug
 to cpan-RT.
 

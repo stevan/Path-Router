@@ -25,52 +25,52 @@ $router->add_route('blog' => (
 $router->add_route('blog/:year/:month/:day' => (
     defaults       => {
         controller => 'blog',
-        action     => 'show_date',      
-    }, 
+        action     => 'show_date',
+    },
     validations => {
         year    => qr/\d{4}/,
         month   => qr/\d{1,2}/,
-        day     => qr/\d{1,2}/,    
+        day     => qr/\d{1,2}/,
     }
 ));
 
 $router->add_route('blog/:action/:id' => (
     defaults       => {
         controller => 'blog',
-    }, 
+    },
     validations => {
-        action  => qr/\D+/,       
-        id      => qr/\d+/    
+        action  => qr/\D+/,
+        id      => qr/\d+/
     }
 ));
 
-path_ok($router, $_, '... matched path (' . $_ . ')') 
+path_ok($router, $_, '... matched path (' . $_ . ')')
     foreach qw[
         /blog/
-        
-        /blog/edit/15/     
-        
-        /blog/2006/31/20/      
-        /blog/2006/31/2/          
-        /blog/2006/3/2/ 
-        /blog/2006/3/20/                                        
+
+        /blog/edit/15/
+
+        /blog/2006/31/20/
+        /blog/2006/31/2/
+        /blog/2006/3/2/
+        /blog/2006/3/20/
     ];
 
-path_not_ok($router, $_, '... could not match path (' . $_ . ')') 
+path_not_ok($router, $_, '... could not match path (' . $_ . ')')
     foreach qw[
         foo/
         /foo
-        
-        /blog/index    
+
+        /blog/index
         /blog/foo
         /blog/foo/bar
         /blog/10/bar
-        blog/10/1000                
-        
+        blog/10/1000
+
         /blog/show_date/2006/31/2
         /blog/06/31/2
-        /blog/20063/31/2 
-        /blog/2006/31/200 
+        /blog/20063/31/2
+        /blog/2006/31/200
         /blog/2006/310/1
     ];
 

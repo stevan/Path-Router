@@ -1,15 +1,13 @@
 package Path::Router::Route::Match;
 use Moose;
-
-our $VERSION   = '0.10';
-our $AUTHORITY = 'cpan:STEVAN';
+# ABSTRACT: The result of a Path::Router match
 
 has 'path'    => (is => 'ro', isa => 'Str',     required => 1);
 has 'mapping' => (is => 'ro', isa => 'HashRef', required => 1);
 
 has 'route'   => (
-    is       => 'ro', 
-    isa      => 'Path::Router::Route', 
+    is       => 'ro',
+    isa      => 'Path::Router::Route',
     required => 1,
     handles  => [qw[target]]
 );
@@ -22,17 +20,13 @@ __END__
 
 =pod
 
-=head1 NAME
-
-Path::Router::Route::Match - The result of a Path::Router match
-
 =head1 DESCRIPTION
 
 This is the object returned from calling C<match> on a L<Path::Router>
-instance. It contains all the information you would need to do any 
-dispatching nessecary. 
+instance. It contains all the information you would need to do any
+dispatching nessecary.
 
-=head1 METHODS 
+=head1 METHODS
 
 =over 4
 
@@ -44,8 +38,8 @@ This is the path that was matched.
 
 =item B<mapping>
 
-This is the mapping of your router part names to the actual parts of 
-the path. If your route had no "variables", then this will be an empty 
+This is the mapping of your router part names to the actual parts of
+the path. If your route had no "variables", then this will be an empty
 HASH ref.
 
 =item B<route>
@@ -63,7 +57,7 @@ that was matched.
 
 =head1 BUGS
 
-All complex software has bugs lurking in it, and this module is no 
+All complex software has bugs lurking in it, and this module is no
 exception. If you find a bug please either email me, or add the bug
 to cpan-RT.
 

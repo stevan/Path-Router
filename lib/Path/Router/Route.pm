@@ -1,8 +1,6 @@
 package Path::Router::Route;
 use Moose;
-
-our $VERSION   = '0.10';
-our $AUTHORITY = 'cpan:STEVAN';
+# ABSTRACT: An object to represent a route
 
 use Carp qw(cluck);
 use Path::Router::Types;
@@ -307,15 +305,11 @@ sub generate_match_code {
 
 __PACKAGE__->meta->make_immutable;
 
-no Moose; 1
+no Moose; 1;
 
 __END__
 
 =pod
-
-=head1 NAME
-
-Path::Router::Route - An object to represent a route
 
 =head1 DESCRIPTION
 
@@ -408,5 +402,11 @@ L<http://www.iinteractive.com>
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.
+
+=begin Pod::Coverage
+
+BUILD
+
+=end Pod::Coverage
 
 =cut
