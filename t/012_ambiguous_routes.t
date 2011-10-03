@@ -82,4 +82,24 @@ use Path::Router;
     );
 }
 
+{
+    my $router = Path::Router->new;
+
+    $router->add_route('/foo/bar/?:baz' => (defaults => { id => 1 }));
+    $router->add_route('/foo/:bar'      => (defaults => { id => 2 }));
+
+    my $match = $router->match('/foo/bar');
+    is($match->mapping->{id}, 1, "optional components don't matter");
+}
+
+{
+    my $router = Path::Router->new;
+
+    $router->add_route('/foo/:bar'      => (defaults => { id => 2 }));
+    $router->add_route('/foo/bar/?:baz' => (defaults => { id => 1 }));
+
+    my $match = $router->match('/foo/bar');
+    is($match->mapping->{id}, 1, "optional components don't matter");
+}
+
 done_testing;
