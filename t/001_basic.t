@@ -8,9 +8,7 @@ use Test::Path::Router;
 
 use Moose::Util::TypeConstraints;
 
-BEGIN {
-    use_ok('Path::Router');
-}
+use Path::Router;
 
 subtype 'NumericMonth'
     => as 'Int'

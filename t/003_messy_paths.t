@@ -7,9 +7,7 @@ use Test::More;
 use Test::Path::Router;
 #use Data::Dumper;
 
-BEGIN {
-    use_ok('Path::Router');
-}
+use Path::Router;
 
 =pod
 

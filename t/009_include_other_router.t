@@ -7,9 +7,7 @@ use Test::More;
 use Test::Fatal;
 use Test::Path::Router;
 
-BEGIN {
-    use_ok('Path::Router');
-}
+use Path::Router;
 
 my $poll_router = Path::Router->new();
 isa_ok($poll_router, 'Path::Router');

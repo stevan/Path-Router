@@ -6,9 +6,7 @@ use warnings;
 use Test::More;
 use Test::Path::Router;
 
-BEGIN {
-    use_ok('Path::Router');
-}
+use Path::Router;
 
 my $INDEX     = bless {} => 'Blog::Index';
 my $SHOW_DATE = bless {} => 'Blog::ShowDate';

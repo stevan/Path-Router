@@ -5,9 +5,7 @@ use warnings;
 
 use Test::More;
 
-BEGIN {
-    use_ok('Path::Router');
-}
+use Path::Router;
 
 my $r = Path::Router->new;
 isa_ok($r, 'Path::Router');

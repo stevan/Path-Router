@@ -6,9 +6,7 @@ use warnings;
 use Test::More;
 use Test::Path::Router;
 
-BEGIN {
-    use_ok('Path::Router');
-}
+use Path::Router;
 
 =pod
 
