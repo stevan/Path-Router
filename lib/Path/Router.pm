@@ -3,6 +3,7 @@ use Moose;
 # ABSTRACT: A tool for routing paths
 
 use File::Spec::Unix ();
+use Try::Tiny;
 
 use Path::Router::Types;
 use Path::Router::Route;
@@ -136,7 +137,7 @@ sub uri_for {
 
     foreach my $route (@{$self->routes}) {
         my @url;
-        eval {
+        my $url = try {
 
             my %url_map = %orig_url_map;
 
@@ -211,17 +212,18 @@ sub uri_for {
                 warn "+++ URL so far ... ", (join "/" => @url) if DEBUG;
             }
 
-        };
-        unless ($@) {
             return join "/" => grep { defined } @url;
         }
-        else {
+        catch {
             do {
                 warn join "/" => @url;
                 warn "... ", $@;
             } if DEBUG;
-        }
 
+            return;
+        };
+
+        return $url if defined $url;
     }
 
     return undef;
