@@ -2,6 +2,7 @@ package Path::Router;
 use Moose;
 # ABSTRACT: A tool for routing paths
 
+use Eval::Closure;
 use File::Spec::Unix ();
 use Try::Tiny;
 
@@ -46,19 +47,20 @@ sub _build_match_code {
         push @code, $route->generate_match_code($i++);
     }
 
-    my $code = "sub {\n" .
-        "#line " . __LINE__ . ' "' . __FILE__ . "\"\n" .
-        "   my \$self = shift;\n" .
-        "   my \$path = shift;\n" .
-        "   my \$routes = \$self->routes;\n" .
-        join("\n", @code) .
-        "#line " . __LINE__ . ' "' . __FILE__ . "\"\n" .
-        "   print STDERR \"match failed\\n\" if DEBUG();\n" .
-        "   return ();\n" .
-        "}"
-    ;
-    # print STDERR $code;
-    eval $code or warn $@;
+    return eval_closure(
+        source => [
+            'sub {',
+                '#line ' . __LINE__ . ' "' . __FILE__ . '"',
+                'my $self = shift;',
+                'my $path = shift;',
+                'my $routes = $self->routes;',
+                @code,
+                '#line ' . __LINE__ . ' "' . __FILE__ . '"',
+                'print STDERR "match failed\n" if Path::Router::DEBUG();',
+                'return;',
+            '}',
+        ]
+    );
 }
 
 sub add_route {
