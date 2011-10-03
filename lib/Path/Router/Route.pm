@@ -2,6 +2,7 @@ package Path::Router::Route;
 use Moose;
 # ABSTRACT: An object to represent a route
 
+use B;
 use Carp qw(cluck);
 use Path::Router::Types;
 
@@ -230,77 +231,91 @@ sub generate_match_code {
         $regexp = "(?:$piece$regexp)";
     }
 
-    my $code = "#line " . __LINE__ . ' "' . __FILE__ . "\"\n" .
-        "print STDERR \"Attempting to match " . $self->path . " against \$path\\n\" if Path::Router::DEBUG();\n" .
-        "print STDERR \"   regexp is $regexp\\n\" if Path::Router::DEBUG();\n" .
-        "if (\$path =~ /^$regexp\$/) {\n" .
-        "    # " . $self->path . "\n"
-    ;
+    my @code;
+
+    push @code, (
+        '#line ' . __LINE__ . ' "' . __FILE__ . '"',
+        'print STDERR "Attempting to match ' . $self->path . ' against $path"',
+            'if Path::Router::DEBUG();',
+        'print STDERR "   regexp is " . ' . B::perlstring($regexp),
+            'if Path::Router::DEBUG();',
+        'if ($path =~ /^' . $regexp . '$/) {',
+            '# ' . $self->path,
+    );
+
     if (@variables) {
-        $code .= "    my %captures = (\n";
+        push @code, (
+                'my %captures = (',
+        );
         foreach my $i (0..$#variables) {
             my $name = $variables[$i];
             $name =~ s/'/\\'/g;
-            $code .= "        '$name' => \$" . ($i + 1) . " || '',\n";
+            push @code, (
+                        B::perlstring($name) . ' => $' . ($i + 1) . ' || "",',
+            );
         }
-        $code .= "    );\n";
+        push @code, (
+                ');',
+        );
     }
-    $code .=
-        "    my \$route = \$routes->[$pos];\n" .
-        "    my \$valid = 1;\n"
-    ;
-    ;
+    push @code, (
+            'my $route = $routes->[' . $pos . '];',
+            'my $valid = 1;',
+    );
+
     if ($self->has_defaults) {
-        $code .=
-            "    my \$mapping = \$route->create_default_mapping;\n";
-        ;
+        push @code, (
+                'my $mapping = $route->create_default_mapping;',
+        );
     } else {
-        $code .=
-            "    my \$mapping =  {};\n"
-        ;
+        push @code, (
+                'my $mapping = {};',
+        );
     }
 
     if (@variables) {
-        $code .=
-            "    my \$validations = \$route->validations;\n" .
-            "    while(my(\$key, \$value) = each \%captures) {\n" .
-            "        next unless defined \$value && length \$value;\n"
-        ;
+        push @code, (
+                'my $validations = $route->validations;',
+                'while (my ($key, $value) = each %captures) {',
+                    'next unless defined $value && length $value;',
+        );
 
         my $if = "if";
         foreach my $v (@variables) {
             if ($self->has_validation_for($v)) {
-                $code .=
-                    "        $if (\$key eq '$v') {\n" .
-                    "            my \$v = \$validations->{$v};\n" .
-                    "            if (! \$v->check(\$value)) {\n" .
-                    "                print STDERR \"$v failed validation\\n\" if Path::Router::DEBUG;\n" .
-                    "                \$valid = 0;\n" .
-                    "            }\n" .
-                    "        }\n"
-                ;
+                my $vstr = B::perlstring($v);
+                push @code, (
+                            $if . ' ($key eq ' . $vstr . ') {',
+                                'my $v = $validations->{' . $vstr . '};',
+                                'if (!$v->check($value)) {',
+                                    'print STDERR ' . $vstr . ' . " failed validation\n"',
+                                        'if Path::Router::DEBUG();',
+                                    '$valid = 0;',
+                                '}',
+                            '}',
+                );
                 $if = "elsif";
             }
         }
 
-        $code .=
-            "        \$mapping->{\$key} = \$value;\n" .
-            "    }\n"
-        ;
+        push @code, (
+                    '$mapping->{$key} = $value;',
+                '}',
+        );
     }
-    $code .=
-        "    if (\$valid) {\n" .
-        "        print STDERR \"match success\\n\" if Path::Router::DEBUG();\n" .
-        "        return bless({\n" .
-        "            path => \$path,\n" .
-        "            route => \$route,\n" .
-        "            mapping => \$mapping,\n" .
-        "        }, 'Path::Router::Route::Match');\n" .
-        "    }\n" .
-        "}\n"
-    ;
+    push @code, (
+            'if ($valid) {',
+                'print STDERR "match success\n" if Path::Router::DEBUG();',
+                'return bless({',
+                    'path    => $path,',
+                    'route   => $route,',
+                    'mapping => $mapping,',
+                '}, "Path::Router::Route::Match")',
+            '}',
+        '}',
+    );
 
-    return $code;
+    return @code;
 }
 
 __PACKAGE__->meta->make_immutable;
