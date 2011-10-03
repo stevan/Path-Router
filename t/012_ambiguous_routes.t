@@ -8,8 +8,12 @@ use Path::Router;
 {
     my $router = Path::Router->new;
 
-    $router->add_route('/foo' => (defaults => { a => 'b', c => 'd' }));
-    $router->add_route('/bar' => (defaults => { a => 'b' }));
+    $router->add_route('/foo' =>
+        defaults => { a => 'b', c => 'd', e => 'f' }
+    );
+    $router->add_route('/bar' =>
+        defaults => { a => 'b', c => 'd' }
+    );
 
     is($router->uri_for(a => 'b'), 'bar');
 }
@@ -17,8 +21,12 @@ use Path::Router;
 {
     my $router = Path::Router->new;
 
-    $router->add_route('/bar' => (defaults => { a => 'b' }));
-    $router->add_route('/foo' => (defaults => { a => 'b', c => 'd' }));
+    $router->add_route('/bar' =>
+        defaults => { a => 'b', c => 'd' }
+    );
+    $router->add_route('/foo' =>
+        defaults => { a => 'b', c => 'd', e => 'f' }
+    );
 
     is($router->uri_for(a => 'b'), 'bar');
 }
