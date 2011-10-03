@@ -1,6 +1,27 @@
 Revision history for Perl extension Path::Router
 
 {{$NEXT}}
+    - *POSSIBLE BACKWARDS INCOMPATIBILITY*
+      When using uri_for, a match is considered more exact if it is also
+      missing items from the path descriptor that don't appear in the route's
+      defaults or variables. For instance, if a router has /foo with defaults
+      of { 'a' => 'b' } and /bar with defaults of { 'a' => 'b', 'c' => 'd' },
+      then ->uri_for({ 'a' => 'b' }) will always return /foo. Previously, it
+      would return one of them arbitrarily, depending on the definition order.
+      Also, if this new rule doesn't result in a single route being matched
+      (for instance, if /foo had defaults of { 'a' => 'b', 'e' => 'f' }), then
+      an exception will be thrown.
+    - *POSSIBLE BACKWARDS INCOMPATIBILITY*
+      When using match, a path will be considered more exact if it matches more
+      required non-variable path components. For instance, if a router has
+      /foo/bar and /foo/:bar, then ->match('/foo/bar') will always match
+      /foo/bar (and not /foo/:bar). Previously, it would return one of them
+      arbitrarily, depending on the definition order. Also, if this new rule
+      doesn't result in a single route being matched (for instance, if the
+      router contained /:foo/bar and /foo/:bar), then an exception will be
+      thrown.
+    - Warn when creating validations that don't correspond to a path element
+    - Convert to Dist::Zilla
 
 0.10 Wed. Jan. 12, 2011
     * Path::Router
