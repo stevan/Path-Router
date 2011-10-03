@@ -137,6 +137,7 @@ sub uri_for {
         delete $orig_url_map{$_} unless defined $orig_url_map{$_};
     }
 
+    my @possible;
     foreach my $route (@{$self->routes}) {
         my @url;
         my $url = try {
@@ -225,10 +226,60 @@ sub uri_for {
             return;
         };
 
-        return $url if defined $url;
+        push @possible, [$route, $url] if defined $url;
     }
 
-    return undef;
+    return undef unless @possible;
+    return $possible[0][1] if @possible == 1;
+
+    my @found;
+    my $min;
+    for my $possible (@possible) {
+        my ($route, $url) = @$possible;
+
+        my %url_map = %orig_url_map;
+
+        my %required = map {( $_ => 1 )}
+            @{ $route->required_variable_component_names };
+
+        my %optional = map {( $_ => 1 )}
+            @{ $route->optional_variable_component_names };
+
+        my %url_defaults;
+
+        my %match = %{$route->defaults || {}};
+
+        for my $component (keys(%required), keys(%optional)) {
+            next unless exists $match{$component};
+            $url_defaults{$component} = delete $match{$component};
+        }
+        # any remaining keys in %defaults are 'extra' -- they don't appear
+        # in the url, so they need to match exactly rather than being
+        # filled in
+
+        %url_map = (%url_defaults, %url_map);
+
+        my %wanted = (%required, %optional, %match);
+        delete $wanted{$_} for keys %url_map;
+
+        my $extra = keys %wanted;
+
+        if (!defined($min) || $extra < $min) {
+            @found = ($possible);
+            $min = $extra;
+        }
+        elsif ($extra == $min) {
+            push @found, $possible;
+        }
+    }
+
+    die "Ambiguous path descriptor (specified keys "
+      . join(', ', sort keys(%orig_url_map))
+      . "): could match paths "
+      . join(', ', sort map { $_->path } map { $_->[0] } @found)
+        if @found > 1;
+
+    return $found[0][1];
 }
 
 __PACKAGE__->meta->make_immutable;
