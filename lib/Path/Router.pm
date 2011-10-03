@@ -106,20 +106,13 @@ sub include_router {
 
 sub match {
     my ($self, $url) = @_;
+    $url = File::Spec::Unix->canonpath($url);
+    $url =~ s|^/||; # Path::Router specific. remove first /
 
     if ($self->inline) {
-        $url =~ s|/{2,}|/|g;                          # xx////xx  -> xx/xx
-        $url =~ s{(?:/\.)+(?:/|\z)}{/}g;              # xx/././xx -> xx/xx
-        $url =~ s|^(?:\./)+||s unless $url eq "./";   # ./xx      -> xx
-        $url =~ s|^/(?:\.\./)+|/|;                    # /../../xx -> xx
-        $url =~ s|^/\.\.$|/|;                         # /..       -> /
-        $url =~ s|/\z|| unless $url eq "/";           # xx/       -> xx
-        $url =~ s|^/||; # Path::Router specific. remove first /
-
         return $self->match_code->($self, $url);
     } else {
-        my @parts = grep { defined $_ and length $_ }
-            split '/' => File::Spec::Unix->canonpath($url);
+        my @parts = split '/' => $url;
 
         for my $route (@{$self->routes}) {
             my $match = $route->match(\@parts) or next;
