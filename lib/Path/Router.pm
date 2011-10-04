@@ -152,7 +152,7 @@ sub _disambiguate_matches {
         }
     }
 
-    die "Ambiguous match: path $path could match any of "
+    confess "Ambiguous match: path $path could match any of "
       . join(', ', sort map { $_->route->path } @found)
         if @found > 1;
 
@@ -303,7 +303,7 @@ sub uri_for {
         }
     }
 
-    die "Ambiguous path descriptor (specified keys "
+    confess "Ambiguous path descriptor (specified keys "
       . join(', ', sort keys(%orig_url_map))
       . "): could match paths "
       . join(', ', sort map { $_->path } map { $_->[0] } @found)
