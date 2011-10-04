@@ -1,6 +1,8 @@
 Revision history for Perl extension Path::Router
 
 {{$NEXT}}
+
+0.11  2011-10-03
     - *POSSIBLE BACKWARDS INCOMPATIBILITY*
       When using uri_for, a match is considered more exact if it is also
       missing items from the path descriptor that don't appear in the route's
