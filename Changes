@@ -1,6 +1,8 @@
 Revision history for Perl extension Path::Router
 
 {{$NEXT}}
+
+0.12  2012-07-16
     - Fix matching on variable path components with a path where the variable
       part evaluated to false (for instance, matching '/blog/show/:id' against
       '/blog/show/0'). Reported by Clay Fouts (RT#78388). (doy)
