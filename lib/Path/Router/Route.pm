@@ -251,7 +251,8 @@ sub generate_match_code {
             my $name = $variables[$i];
             $name =~ s/'/\\'/g;
             push @code, (
-                        B::perlstring($name) . ' => $' . ($i + 1) . ' || "",',
+                'defined($' . ($i + 1) . ') ? ' .
+                    '(' . B::perlstring($name) . ' => $' . ($i + 1) . ') : (),',
             );
         }
         push @code, (
