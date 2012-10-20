@@ -44,7 +44,7 @@ has 'components' => (
     is      => 'ro',
     isa     => 'ArrayRef[Str]',
     lazy    => 1,
-    default => sub { [ grep {$_} split '/' => (shift)->path ] }
+    default => sub { [ grep {defined && length} split '/' => (shift)->path ] }
 );
 
 has 'length' => (
@@ -227,7 +227,7 @@ sub generate_match_code {
 
     $regexp[0] =~ s/^\\\///;
     my $regexp = '';
-    while (my $piece = pop @regexp) {
+    while (defined(my $piece = pop @regexp)) {
         $regexp = "(?:$piece$regexp)";
     }
 
