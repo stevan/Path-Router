@@ -5,20 +5,14 @@ use Test::More;
 
 use Path::Router;
 
-{
-    my $router = Path::Router->new;
-    $router->add_route('1/0');
-    my $match = $router->match('1/0');
-    ok($match);
-    is_deeply($match->route->components, [1, 0]);
-}
-
-{
-    my $router = Path::Router->new;
-    $router->add_route('0/1');
-    my $match = $router->match('0/1');
-    ok($match);
-    is_deeply($match->route->components, [0, 1]);
+for my $inline (0, 1) {
+    for my $path ('0/1', '1/0') {
+        my $router = Path::Router->new(inline => $inline);
+        $router->add_route($path);
+        my $match = $router->match($path);
+        ok($match);
+        is_deeply($match->route->components, [split '/', $path]);
+    }
 }
 
 done_testing;
