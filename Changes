@@ -1,6 +1,8 @@
 Revision history for Perl extension Path::Router
 
 {{$NEXT}}
+
+0.13  2014-08-24
     - Allow path components to be false values (doy)
         - added tests for this
 
