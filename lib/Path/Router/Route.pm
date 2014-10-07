@@ -5,19 +5,20 @@ use Moose;
 use B;
 use Carp qw(cluck);
 use Path::Router::Types;
+use Types::Standard -types;
 
 with 'MooseX::Clone';
 
 has 'path'  => (
     is       => 'ro',
-    isa      => 'Str',
+    isa      => Str,
     required => 1
 );
 
 has 'defaults' => (
     traits    => [ 'Copy' ],
     is        => 'ro',
-    isa       => 'HashRef',
+    isa       => HashRef,
     default   => sub { {} },
     predicate => {
         'has_defaults' => sub {
@@ -42,7 +43,7 @@ has 'validations' => (
 has 'components' => (
     traits  => [ 'NoClone' ],
     is      => 'ro',
-    isa     => 'ArrayRef[Str]',
+    isa     => ArrayRef[Str],
     lazy    => 1,
     default => sub { [ grep {defined && length} split '/' => (shift)->path ] }
 );
@@ -50,7 +51,7 @@ has 'components' => (
 has 'length' => (
     traits  => [ 'NoClone' ],
     is      => 'ro',
-    isa     => 'Int',
+    isa     => Int,
     lazy    => 1,
     default => sub { scalar @{(shift)->components} },
 );
@@ -58,7 +59,7 @@ has 'length' => (
 has 'length_without_optionals' => (
     traits  => [ 'NoClone' ],
     is      => 'ro',
-    isa     => 'Int',
+    isa     => Int,
     lazy    => 1,
     default => sub {
         scalar grep { ! $_[0]->is_component_optional($_) }
@@ -69,14 +70,14 @@ has 'length_without_optionals' => (
 has 'required_variable_component_names' => (
     traits     => [ 'NoClone' ],
     is         => 'ro',
-    isa        => 'ArrayRef[Str]',
+    isa        => ArrayRef[Str],
     lazy_build => 1,
 );
 
 has 'optional_variable_component_names' => (
     traits     => [ 'NoClone' ],
     is         => 'ro',
-    isa        => 'ArrayRef[Str]',
+    isa        => ArrayRef[Str],
     lazy_build => 1,
 );
 
@@ -85,7 +86,7 @@ has 'target' => (
     # assume cloning of this is not
     # what you would want
     is        => 'ro',
-    isa       => 'Any',
+    isa       => Any,
     predicate => 'has_target'
 );
 

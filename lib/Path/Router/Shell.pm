@@ -3,11 +3,12 @@ use Moose;
 # ABSTRACT: An interactive shell for testing router configurations
 
 use Term::ReadLine;
+use Types::Standard qw(InstanceOf);
 use Data::Dumper;
 
 has 'router' => (
     is       => 'ro',
-    isa      => 'Path::Router',
+    isa      => InstanceOf['Path::Router'],
     required => 1,
 );
 

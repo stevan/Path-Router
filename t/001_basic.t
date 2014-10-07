@@ -7,11 +7,12 @@ use Test::More;
 use Test::Path::Router;
 
 use Moose::Util::TypeConstraints;
+use Types::Standard qw(Int);
 
 use Path::Router;
 
 subtype 'NumericMonth'
-    => as 'Int'
+    => as Int
     => where { $_ <= 12 };
 
 my $router = Path::Router->new;
@@ -31,7 +32,7 @@ $router->add_route('blog/:year/:month/:day' => (
     validations => {
         year    => qr/\d{4}/,
         month   => 'NumericMonth',
-        day     => subtype('Int' => where { $_ <= 31 }),
+        day     => subtype(Int => where { $_ <= 31 }),
     }
 ));
 
