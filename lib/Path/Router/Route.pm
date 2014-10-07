@@ -4,10 +4,10 @@ use Moose;
 
 use B;
 use Carp qw(cluck);
+use Clone::PP ();
 use Path::Router::Types qw(PathRouterRouteValidationMap);
 use Types::Standard -types;
 
-with 'MooseX::Clone';
 
 has 'path'  => (
     is       => 'ro',
@@ -16,7 +16,6 @@ has 'path'  => (
 );
 
 has 'defaults' => (
-    traits    => [ 'Copy' ],
     is        => 'ro',
     isa       => HashRef,
     default   => sub { {} },
@@ -28,7 +27,6 @@ has 'defaults' => (
 );
 
 has 'validations' => (
-    traits    => [ 'Copy' ],
     is        => 'ro',
     isa       => PathRouterRouteValidationMap,
     coerce    => 1,
@@ -41,7 +39,6 @@ has 'validations' => (
 );
 
 has 'components' => (
-    traits  => [ 'NoClone' ],
     is      => 'ro',
     isa     => ArrayRef[Str],
     lazy    => 1,
@@ -49,7 +46,6 @@ has 'components' => (
 );
 
 has 'length' => (
-    traits  => [ 'NoClone' ],
     is      => 'ro',
     isa     => Int,
     lazy    => 1,
@@ -57,7 +53,6 @@ has 'length' => (
 );
 
 has 'length_without_optionals' => (
-    traits  => [ 'NoClone' ],
     is      => 'ro',
     isa     => Int,
     lazy    => 1,
@@ -68,14 +63,12 @@ has 'length_without_optionals' => (
 );
 
 has 'required_variable_component_names' => (
-    traits     => [ 'NoClone' ],
     is         => 'ro',
     isa        => ArrayRef[Str],
     lazy_build => 1,
 );
 
 has 'optional_variable_component_names' => (
-    traits     => [ 'NoClone' ],
     is         => 'ro',
     isa        => ArrayRef[Str],
     lazy_build => 1,
@@ -318,6 +311,21 @@ sub generate_match_code {
     );
 
     return @code;
+}
+
+sub clone {
+    my $self = shift;
+    my %new_args = map {$_ => Clone::PP::clone($self->$_)} qw(path target);
+
+    if ($self->has_defaults) {
+        $new_args{defaults} = \%{$self->defaults};
+    }
+
+    if ($self->has_validations) {
+        $new_args{validations} = \%{$self->validations};
+    }
+
+    return ref($self)->new({ %new_args, @_ });
 }
 
 __PACKAGE__->meta->make_immutable;
