@@ -1,12 +1,14 @@
 package Path::Router::Route;
-use Moose;
-# ABSTRACT: An object to represent a route
 
 use B;
 use Carp qw(cluck);
 use Clone::PP ();
 use Path::Router::Types qw(PathRouterRouteValidationMap);
 use Types::Standard -types;
+
+use Moo;
+use namespace::clean;
+# ABSTRACT: An object to represent a route
 
 
 has 'path'  => (
@@ -19,11 +21,7 @@ has 'defaults' => (
     is        => 'ro',
     isa       => HashRef,
     default   => sub { {} },
-    predicate => {
-        'has_defaults' => sub {
-            scalar keys %{(shift)->{defaults}}
-        }
-    }
+    predicate => 1,
 );
 
 has 'validations' => (
@@ -31,11 +29,7 @@ has 'validations' => (
     isa       => PathRouterRouteValidationMap,
     coerce    => 1,
     default   => sub { {} },
-    predicate => {
-        'has_validations' => sub {
-            scalar keys %{(shift)->{validations}}
-        }
-    }
+    predicate => 1,
 );
 
 has 'components' => (
@@ -63,15 +57,17 @@ has 'length_without_optionals' => (
 );
 
 has 'required_variable_component_names' => (
-    is         => 'ro',
-    isa        => ArrayRef[Str],
-    lazy_build => 1,
+    is      => 'ro',
+    isa     => ArrayRef[Str],
+    lazy    => 1,
+    builder => 1,
 );
 
 has 'optional_variable_component_names' => (
-    is         => 'ro',
-    isa        => ArrayRef[Str],
-    lazy_build => 1,
+    is      => 'ro',
+    isa     => ArrayRef[Str],
+    lazy    => 1,
+    builder => 1,
 );
 
 has 'target' => (
@@ -328,9 +324,7 @@ sub clone {
     return ref($self)->new({ %new_args, @_ });
 }
 
-__PACKAGE__->meta->make_immutable;
-
-no Moose; 1;
+1;
 
 __END__
 

@@ -1,10 +1,12 @@
 package Path::Router::Shell;
-use Moose;
-# ABSTRACT: An interactive shell for testing router configurations
 
 use Term::ReadLine;
 use Types::Standard qw(InstanceOf);
 use Data::Dumper;
+
+use Moo;
+use namespace::clean;
+# ABSTRACT: An interactive shell for testing router configurations
 
 has 'router' => (
     is       => 'ro',
@@ -33,9 +35,8 @@ sub shell {
     }
 }
 
-__PACKAGE__->meta->make_immutable;
 
-no Moose; 1;
+1;
 
 __END__
 
