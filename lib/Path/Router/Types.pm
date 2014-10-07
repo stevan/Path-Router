@@ -1,36 +1,44 @@
 package Path::Router::Types;
-use Moose ();
-use Moose::Util::TypeConstraints;
 # ABSTRACT: A set of types that Path::Router uses
 
-class_type 'Moose::Meta::TypeConstraint';
+use Carp ();
 
-subtype 'Path::Router::Route::ValidationMap'
-    => as 'HashRef[Moose::Meta::TypeConstraint]';
+use Type::Library
+    -base,
+    -declare => qw(PathRouterRouteValidationMap);
+use Type::Utils -all;
+use Types::Standard -types;
+use Types::TypeTiny qw(TypeTiny);
+
+declare PathRouterRouteValidationMap,
+    as HashRef[TypeTiny];
 
 # NOTE:
 # canonicalize the route
 # validators into a simple
 # set of type constraints
 # - SL
-coerce 'Path::Router::Route::ValidationMap'
-    => from 'HashRef[Str | RegexpRef | Moose::Meta::TypeConstraint]'
-        => via {
-            my %orig = %{ +shift };
-            foreach my $key (keys %orig) {
-                my $val = $orig{$key};
-                if (ref $val eq 'Regexp') {
-                    $orig{$key} = subtype('Str' => where{ /^$val$/ });
-                }
-                else {
-                    $orig{$key} = find_type_constraint($val)
-                        || Carp::confess "Could not locate type constraint named $val";
-                }
+coerce PathRouterRouteValidationMap,
+    from HashRef[Str | RegexpRef | TypeTiny],
+    via {
+        my %orig = %{ +shift };
+        foreach my $key (keys %orig) {
+            my $val = $orig{$key};
+            if (ref $val eq 'Regexp') {
+                $orig{$key} = declare(as Str, where{ /^$val$/ });
             }
-            return \%orig;
-        };
+            elsif (TypeTiny->check($val)) {
+                $orig{$key} = $val;
+            }
+            else {
+                $orig{$key} = dwim_type($val)
+                    || Carp::confess "Could not locate type constraint named $val";
+            }
+        }
+        return \%orig;
+    };
 
-no Moose; no Moose::Util::TypeConstraints; 1;
+1;
 
 __END__
 

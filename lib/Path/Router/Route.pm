@@ -4,7 +4,7 @@ use Moose;
 
 use B;
 use Carp qw(cluck);
-use Path::Router::Types;
+use Path::Router::Types qw(PathRouterRouteValidationMap);
 use Types::Standard -types;
 
 with 'MooseX::Clone';
@@ -30,7 +30,7 @@ has 'defaults' => (
 has 'validations' => (
     traits    => [ 'Copy' ],
     is        => 'ro',
-    isa       => 'Path::Router::Route::ValidationMap',
+    isa       => PathRouterRouteValidationMap,
     coerce    => 1,
     default   => sub { {} },
     predicate => {
