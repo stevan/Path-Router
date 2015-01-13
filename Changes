@@ -1,6 +1,8 @@
 Revision history for Perl extension Path::Router
 
 {{$NEXT}}
+
+0.14  2015-01-13
     - localize $SIG{__DIE__} so that our exception based
       flow control does not mess up, or get messed up by, 
       application exception handling 
