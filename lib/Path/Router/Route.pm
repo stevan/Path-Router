@@ -235,9 +235,11 @@ sub generate_match_code {
 
     push @code, (
         '#line ' . __LINE__ . ' "' . __FILE__ . '"',
-        'print STDERR "Attempting to match ' . $self->path . ' against $path"',
+        'printf STDERR "Attempting to match \"' . $self->path . '\" against \"$path\""',
             'if Path::Router::DEBUG();',
-        'print STDERR "   regexp is " . ' . B::perlstring($regexp),
+        'print STDERR " regexp is " . ' . B::perlstring($regexp),
+            'if Path::Router::DEBUG();',
+        'print STDERR "\n"',
             'if Path::Router::DEBUG();',
         'if ($path =~ /^' . $regexp . '$/) {',
             '# ' . $self->path,
