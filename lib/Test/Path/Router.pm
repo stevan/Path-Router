@@ -34,6 +34,8 @@ sub routes_ok {
 
         my $generated_path = $router->uri_for(%{$mapping});
 
+        $generated_path = '' unless defined $generated_path;
+
         # the path generated from the hash
         # is the same as the path supplied
         if ($path ne $generated_path) {
@@ -104,7 +106,7 @@ sub path_is {
 
 sub mapping_ok {
     my ($router, $mapping, $message) = @_;
-    if (defined $router->uri_for($mapping)) {
+    if (defined $router->uri_for(%{$mapping})) {
         $Test->ok(1, $message);
     }
     else {
@@ -114,7 +116,7 @@ sub mapping_ok {
 
 sub mapping_not_ok {
     my ($router, $mapping, $message) = @_;
-    unless (defined $router->uri_for($mapping)) {
+    unless (defined $router->uri_for(%{$mapping})) {
         $Test->ok(1, $message);
     }
     else {
