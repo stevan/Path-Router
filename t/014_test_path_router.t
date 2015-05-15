@@ -32,13 +32,11 @@ my %tests = (
     mapping_not_ok => {
         pass => {
             desc => 'mapping_not_ok passes when mapping not found',
-            args => [{controller => 'Blog'}, 'pass'],
-            bool => sub { !$_[0] },
+            args => [{controller => 'Wiki'}, 'fail'],
         },
         fail => {
             desc => 'mapping_not_ok fails when mapping found',
-            args => [{controller => 'Wiki'}, 'fail'],
-            bool => sub { $_[0] },
+            args => [{controller => 'Blog'}, 'pass'],
         },
         coderef => \&Test::Path::Router::mapping_not_ok,
     },
@@ -46,12 +44,10 @@ my %tests = (
         pass => {
             desc => 'mapping_ok passes when mapping found',
             args => [{controller => 'Blog'}, 'pass'],
-            bool => sub { $_[0] },
         },
         fail => {
             desc => 'mapping_ok fails when mapping not found',
             args => [{controller => 'Wiki'}, 'fail'],
-            bool => sub { !$_[0] },
         },
         coderef => \&Test::Path::Router::mapping_ok,
     },
@@ -59,12 +55,10 @@ my %tests = (
         pass => {
             desc => 'mapping_is passes when mapping matches path',
             args => [{controller => 'Blog'}, 'blog'],
-            bool => sub { $_[0] },
         },
         fail => {
             desc => 'mapping_is fails when mapping does not match path',
             args => [{controller => 'Wiki'}, 'blog'],
-            bool => sub { !$_[0] },
         },
         coderef => \&Test::Path::Router::mapping_is,
     },
@@ -72,12 +66,10 @@ my %tests = (
         pass => {
             desc => 'path_not_ok passes when path not found',
             args => ['wiki'],
-            bool => sub { $_[0] },
         },
         fail => {
             desc => 'path_not_ok fails when path found',
             args => ['blog'],
-            bool => sub { !$_[0] },
         },
         coderef => \&Test::Path::Router::path_not_ok,
     },
@@ -85,12 +77,10 @@ my %tests = (
         pass => {
             desc => 'path_ok passes when path found',
             args => ['blog'],
-            bool => sub { $_[0] },
         },
         fail => {
             desc => 'path_ok fails when path not found',
             args => ['wiki'],
-            bool => sub { !$_[0] },
         },
         coderef => \&Test::Path::Router::path_ok,
     },
@@ -98,12 +88,10 @@ my %tests = (
         pass => {
             desc => 'path_is passes when path matches mapping',
             args => [blog => {controller => 'Blog'}],
-            bool => sub { $_[0] },
         },
         fail => {
             desc => 'path_is fails when path does not match mapping',
             args => [blog => {controller => 'Wiki'}],
-            bool => sub { !$_[0] },
         },
         coderef => \&Test::Path::Router::path_is,
     },
@@ -114,7 +102,6 @@ my %tests = (
                 blog => {controller => 'Blog'},
                 feed => {controller => 'Feed'},
             }],
-            bool => sub { $_[0] },
         },
         fail => {
             desc => 'routes_ok fails when all paths and mappings do not match',
@@ -122,7 +109,6 @@ my %tests = (
                 blog => {controller => 'Blog'},
                 feed => {controller => 'Wiki'},
             }],
-            bool => sub { !$_[0] },
         },
         coderef => \&Test::Path::Router::routes_ok,
     },
@@ -134,13 +120,14 @@ for my $function (sort keys %tests) {
 
     for my $state (qw(pass fail)) {
 
-        my $transform   = $tests{$function}->{$state}->{bool};
         my $arguments   = $tests{$function}->{$state}->{args};
         my $description = $tests{$function}->{$state}->{desc};
 
         $coderef->($router, @$arguments, $description);
 
-        my $result = $transform->(($capture->details)[-1]->{ok});
+        my $result = ($capture->details)[-1]->{ok};
+
+        $result = !$result if $state eq 'fail';
 
         $test->ok($result, $description);
     }
