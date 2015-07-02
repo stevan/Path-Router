@@ -1,64 +1,54 @@
 package Path::Router::Route;
-use Moose;
-# ABSTRACT: An object to represent a route
 
 use B;
 use Carp qw(cluck);
-use Path::Router::Types;
+use Clone::PP ();
+use Path::Router::Types qw(PathRouterRouteValidationMap);
+use Types::Standard -types;
 
-with 'MooseX::Clone';
+use Moo;
+use namespace::clean;
+# ABSTRACT: An object to represent a route
+
 
 has 'path'  => (
     is       => 'ro',
-    isa      => 'Str',
+    isa      => Str,
     required => 1
 );
 
 has 'defaults' => (
-    traits    => [ 'Copy' ],
     is        => 'ro',
-    isa       => 'HashRef',
+    isa       => HashRef,
     default   => sub { {} },
-    predicate => {
-        'has_defaults' => sub {
-            scalar keys %{(shift)->{defaults}}
-        }
-    }
+    predicate => 1,
 );
 
 has 'validations' => (
-    traits    => [ 'Copy' ],
     is        => 'ro',
-    isa       => 'Path::Router::Route::ValidationMap',
+    isa       => PathRouterRouteValidationMap,
     coerce    => 1,
     default   => sub { {} },
-    predicate => {
-        'has_validations' => sub {
-            scalar keys %{(shift)->{validations}}
-        }
-    }
+    predicate => 1,
 );
 
 has 'components' => (
-    traits  => [ 'NoClone' ],
     is      => 'ro',
-    isa     => 'ArrayRef[Str]',
+    isa     => ArrayRef[Str],
     lazy    => 1,
     default => sub { [ grep {defined && length} split '/' => (shift)->path ] }
 );
 
 has 'length' => (
-    traits  => [ 'NoClone' ],
     is      => 'ro',
-    isa     => 'Int',
+    isa     => Int,
     lazy    => 1,
     default => sub { scalar @{(shift)->components} },
 );
 
 has 'length_without_optionals' => (
-    traits  => [ 'NoClone' ],
     is      => 'ro',
-    isa     => 'Int',
+    isa     => Int,
     lazy    => 1,
     default => sub {
         scalar grep { ! $_[0]->is_component_optional($_) }
@@ -67,17 +57,17 @@ has 'length_without_optionals' => (
 );
 
 has 'required_variable_component_names' => (
-    traits     => [ 'NoClone' ],
-    is         => 'ro',
-    isa        => 'ArrayRef[Str]',
-    lazy_build => 1,
+    is      => 'ro',
+    isa     => ArrayRef[Str],
+    lazy    => 1,
+    builder => 1,
 );
 
 has 'optional_variable_component_names' => (
-    traits     => [ 'NoClone' ],
-    is         => 'ro',
-    isa        => 'ArrayRef[Str]',
-    lazy_build => 1,
+    is      => 'ro',
+    isa     => ArrayRef[Str],
+    lazy    => 1,
+    builder => 1,
 );
 
 has 'target' => (
@@ -85,7 +75,7 @@ has 'target' => (
     # assume cloning of this is not
     # what you would want
     is        => 'ro',
-    isa       => 'Any',
+    isa       => Any,
     predicate => 'has_target'
 );
 
@@ -321,9 +311,22 @@ sub generate_match_code {
     return @code;
 }
 
-__PACKAGE__->meta->make_immutable;
+sub clone {
+    my $self = shift;
+    my %new_args = map {$_ => Clone::PP::clone($self->$_)} qw(path target);
 
-no Moose; 1;
+    if ($self->has_defaults) {
+        $new_args{defaults} = \%{$self->defaults};
+    }
+
+    if ($self->has_validations) {
+        $new_args{validations} = \%{$self->validations};
+    }
+
+    return ref($self)->new({ %new_args, @_ });
+}
+
+1;
 
 __END__
 

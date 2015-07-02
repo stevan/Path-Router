@@ -1,20 +1,23 @@
 package Path::Router::Route::Match;
-use Moose;
+
+use Types::Standard qw(Str HashRef InstanceOf);
+
+use Moo;
+use namespace::clean;
 # ABSTRACT: The result of a Path::Router match
 
-has 'path'    => (is => 'ro', isa => 'Str',     required => 1);
-has 'mapping' => (is => 'ro', isa => 'HashRef', required => 1);
+
+has 'path'    => (is => 'ro', isa => Str,     required => 1);
+has 'mapping' => (is => 'ro', isa => HashRef, required => 1);
 
 has 'route'   => (
     is       => 'ro',
-    isa      => 'Path::Router::Route',
+    isa      => InstanceOf['Path::Router::Route'],
     required => 1,
     handles  => [qw[target]]
 );
 
-__PACKAGE__->meta->make_immutable;
-
-no Moose; 1;
+1;
 
 __END__
 

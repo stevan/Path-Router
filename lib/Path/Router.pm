@@ -1,41 +1,47 @@
 package Path::Router;
-use Moose;
-# ABSTRACT: A tool for routing paths
 
+use Carp;
 use Eval::Closure;
 use File::Spec::Unix ();
 use Try::Tiny;
+use Types::Standard -types;
 
 use Path::Router::Types;
 use Path::Router::Route;
 use Path::Router::Route::Match;
 
+use Moo;
+use namespace::clean;
+# ABSTRACT: A tool for routing paths
+
+
 use constant DEBUG => exists $ENV{PATH_ROUTER_DEBUG} ? $ENV{PATH_ROUTER_DEBUG} : 0;
 
 has 'routes' => (
     is      => 'ro',
-    isa     => 'ArrayRef[Path::Router::Route]',
+    isa     => ArrayRef[InstanceOf['Path::Router::Route']],
     default => sub { [] },
 );
 
 has 'route_class' => (
     is      => 'ro',
-    isa     => 'ClassName',
+    isa     => ClassName,
     default => 'Path::Router::Route',
 );
 
 has 'inline' => (
     is      => 'rw',
-    isa     => 'Bool',
+    isa     => Bool,
     default => 1,
     trigger => sub { $_[0]->clear_match_code }
 );
 
 has 'match_code' => (
-    is         => 'rw',
-    isa        => 'CodeRef',
-    lazy_build => 1,
-    clearer    => 'clear_match_code'
+    is      => 'rw',
+    isa     => CodeRef,
+    lazy    => 1,
+    builder => 1,
+    clearer => 'clear_match_code'
 );
 
 sub _build_match_code {
@@ -314,9 +320,7 @@ sub uri_for {
     return $found[0][1];
 }
 
-__PACKAGE__->meta->make_immutable;
-
-no Moose; 1;
+1;
 
 __END__
 
