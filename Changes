@@ -1,6 +1,7 @@
 Revision history for Perl extension Path::Router
 
 {{$NEXT}}
+    - Switched to Moo, done by FELLIOTT++.
 
 0.14  2015-01-13
     - localize $SIG{__DIE__} so that our exception based
