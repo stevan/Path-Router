@@ -177,7 +177,7 @@ sub uri_for {
     my @possible;
     foreach my $route (@{$self->routes}) {
         local $SIG{__DIE__};
-        
+
         my @url;
         my $url = try {
 
