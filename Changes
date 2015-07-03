@@ -5,6 +5,7 @@ Revision history for Perl extension Path::Router
     - Specified versions when use'ing any third-party modules.
     - Temporarily dropped NextRelease and Git::NextVersion from the @DOY
       bundle, so I can specify a developer release version.
+    - Updated Stevan's email address.
 
 0.14  2015-01-13
     - localize $SIG{__DIE__} so that our exception based

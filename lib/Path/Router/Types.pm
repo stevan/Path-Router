@@ -57,7 +57,7 @@ to cpan-RT.
 
 =head1 AUTHOR
 
-Stevan Little E<lt>stevan.little@iinteractive.comE<gt>
+Stevan Little E<lt>stevan@cpan.orgE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
