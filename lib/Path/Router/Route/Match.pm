@@ -1,9 +1,9 @@
 package Path::Router::Route::Match;
 
-use Types::Standard qw(Str HashRef InstanceOf);
+use Types::Standard  1.000005 qw(Str HashRef InstanceOf);
 
-use Moo;
-use namespace::clean;
+use Moo              2.000001;
+use namespace::clean 0.23;
 # ABSTRACT: The result of a Path::Router match
 
 

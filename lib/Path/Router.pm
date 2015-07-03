@@ -1,21 +1,22 @@
 package Path::Router;
 
-use Carp;
-use Eval::Closure;
-use File::Spec::Unix ();
-use Try::Tiny;
-use Types::Standard -types;
+use 5.008;
+use Carp             1.32;
+use Eval::Closure    0.13;
+use File::Spec::Unix 3.40     ();
+use Try::Tiny        0.19;
+use Types::Standard  1.000005 -types;
 
 use Path::Router::Types;
 use Path::Router::Route;
 use Path::Router::Route::Match;
 
-use Moo;
-use namespace::clean;
+use Moo              2.000001;
+use namespace::clean 0.23;
 # ABSTRACT: A tool for routing paths
 
 
-use constant DEBUG => exists $ENV{PATH_ROUTER_DEBUG} ? $ENV{PATH_ROUTER_DEBUG} : 0;
+use constant         1.24 DEBUG => exists $ENV{PATH_ROUTER_DEBUG} ? $ENV{PATH_ROUTER_DEBUG} : 0;
 
 has 'routes' => (
     is      => 'ro',

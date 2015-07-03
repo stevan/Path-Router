@@ -1,13 +1,13 @@
 package Path::Router::Route;
 
 use B;
-use Carp qw(cluck);
-use Clone::PP ();
-use Path::Router::Types qw(PathRouterRouteValidationMap);
-use Types::Standard -types;
+use Carp                1.32     qw(cluck);
+use Clone::PP           1.04     ();
+use Path::Router::Types          qw(PathRouterRouteValidationMap);
+use Types::Standard     1.000005 -types;
 
-use Moo;
-use namespace::clean;
+use Moo                 2.000001;
+use namespace::clean    0.23;
 # ABSTRACT: An object to represent a route
 
 

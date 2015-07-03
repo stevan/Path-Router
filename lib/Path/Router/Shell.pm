@@ -1,11 +1,11 @@
 package Path::Router::Shell;
 
-use Term::ReadLine;
-use Types::Standard qw(InstanceOf);
-use Data::Dumper;
+use Term::ReadLine  1.11;
+use Types::Standard 1.000005 qw(InstanceOf);
+use Data::Dumper    2.154;
 
-use Moo;
-use namespace::clean;
+use Moo              2.000001;
+use namespace::clean 0.23;
 # ABSTRACT: An interactive shell for testing router configurations
 
 has 'router' => (

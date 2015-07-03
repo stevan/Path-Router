@@ -1,14 +1,13 @@
 package Path::Router::Types;
 # ABSTRACT: A set of types that Path::Router uses
 
-use Carp ();
+use Carp            1.32            ();
 
-use Type::Library
-    -base,
-    -declare => qw(PathRouterRouteValidationMap);
-use Type::Utils -all;
-use Types::Standard -types;
-use Types::TypeTiny qw(TypeTiny);
+use Type::Library   1.000005        -base,
+                                    -declare => qw(PathRouterRouteValidationMap);
+use Type::Utils     1.000005        -all;
+use Types::Standard 1.000005        -types;
+use Types::TypeTiny 1.000005        qw(TypeTiny);
 
 declare PathRouterRouteValidationMap,
     as HashRef[TypeTiny];

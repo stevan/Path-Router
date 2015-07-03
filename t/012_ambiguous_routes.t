@@ -1,8 +1,8 @@
 #!/usr/bin/env perl
 use strict;
 use warnings;
-use Test::More;
-use Test::Fatal;
+use Test::More 1.001013;
+use Test::Fatal 0.012;
 
 use Path::Router;
 

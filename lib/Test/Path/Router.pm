@@ -4,10 +4,10 @@ package Test::Path::Router;
 use strict;
 use warnings;
 
-use Test::Builder ();
-use Test::Deep    ();
-use Data::Dumper  ();
-use Sub::Exporter;
+use Test::Builder 1.001013 ();
+use Test::Deep    0.113    ();
+use Data::Dumper  2.154    ();
+use Sub::Exporter 0.981;
 
 my @exports = qw/
     routes_ok

@@ -3,11 +3,11 @@
 use strict;
 use warnings;
 
-use Test::More;
+use Test::More 1.001013;
 use Test::Path::Router;
 
-use Type::Utils qw(subtype as where);
-use Types::Standard qw(Int);
+use Type::Utils     1.000005 qw(subtype as where);
+use Types::Standard 1.000005 qw(Int);
 
 use Path::Router;
 
