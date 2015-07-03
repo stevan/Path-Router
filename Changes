@@ -3,6 +3,8 @@ Revision history for Perl extension Path::Router
 0.14_01  2015-07-03
     - Switched to Moo, done by FELLIOTT++.
     - Specified versions when use'ing any third-party modules.
+    - Temporarily dropped NextRelease and Git::NextVersion from the @DOY
+      bundle, so I can specify a developer release version.
 
 0.14  2015-01-13
     - localize $SIG{__DIE__} so that our exception based
