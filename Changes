@@ -5,6 +5,8 @@ Revision history for Perl extension Path::Router
     - Specified versions when use'ing any third-party modules.
     - Temporarily dropped NextRelease and Git::NextVersion from the @DOY
       bundle, so I can specify a developer release version.
+    - Added minimal doc for route_class() method in Path::Router,
+      and clone() method in Path::Router::Route.
     - Updated Stevan's email address.
 
 0.14  2015-01-13

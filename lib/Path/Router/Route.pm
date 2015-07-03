@@ -345,6 +345,8 @@ introspect them.
 
 =item B<new (path => $path, ?%options)>
 
+=item B<clone>
+
 =item B<path>
 
 =item B<target>
