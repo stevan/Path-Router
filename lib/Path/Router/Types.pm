@@ -1,6 +1,9 @@
 package Path::Router::Types;
 # ABSTRACT: A set of types that Path::Router uses
 
+use strict;
+use warnings;
+
 use Carp            1.32            ();
 
 use Type::Library   1.000005        -base,
