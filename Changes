@@ -1,5 +1,13 @@
 Revision history for Perl extension Path::Router
 
+0.15 2016-03-01 NEILB
+    - Switched to Moo, done by FELLIOTT++.
+    - Added strict and warnings to Path::Router::Types - MANWAR++
+    - Specified versions when use'ing any third-party modules.
+    - Added minimal doc for route_class() method in Path::Router,
+      and clone() method in Path::Router::Route.
+    - Updated Stevan's email address.
+
 0.14_01  2015-07-03
     - Switched to Moo, done by FELLIOTT++.
     - Specified versions when use'ing any third-party modules.
