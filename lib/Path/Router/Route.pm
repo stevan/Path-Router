@@ -163,6 +163,8 @@ sub match {
 
     my $mapping = $self->has_defaults ? $self->create_default_mapping : {};
 
+    my @deferred_component_checks;
+
     for my $c (@{ $self->components }) {
         unless (@parts) {
             die "should never get here: " .
@@ -173,14 +175,21 @@ sub match {
         my $part = shift @parts;
 
         if ($self->is_component_variable($c)) {
-            my $name = $self->get_component_name($c);
-            if (my $v = $self->has_validation_for($name)) {
-                return unless $v->check($part);
-            }
-            $mapping->{$name} = $part;
+            # Defer doing the work to check variable components
+            # until we know all the static components are valid:
+            push @deferred_component_checks, [ $c, $part ];
         } else {
             return unless $c eq $part;
         }
+    }
+
+    for my $deferred_component_check (@deferred_component_checks) {
+        my ($c, $part) = @$deferred_component_check;
+        my $name = $self->get_component_name($c);
+        if (my $v = $self->has_validation_for($name)) {
+            return unless $v->check($part);
+        }
+        $mapping->{$name} = $part;
     }
 
     return Path::Router::Route::Match->new(
